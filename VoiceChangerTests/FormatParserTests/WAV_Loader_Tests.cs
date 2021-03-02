@@ -1,27 +1,19 @@
 ﻿using NUnit.Framework;
-using System;
 using System.IO;
 using VoiceChanger.FormatParser;
-using VoiceChanger.Utils;
+using VoiceChangerTests.Utils;
 
 namespace VoiceChangerTests.FormatParserTests
 {
-    class WAV_Loader_Tests
+    [TestFixture]
+    public class WAV_Loader_Tests
     {
-        string Sample1Path => GetSamplePath("Sample1.wav");
-        string Sample2Path => GetSamplePath("Sample2.wav");
-        string Sample3Path => GetSamplePath("Sample3.wav");
-        string Sample4Path => GetSamplePath("100Hz_44100Hz_16bit_05sec.wav");
-        string Sample5Path => GetSamplePath("250Hz_44100Hz_16bit_05sec.wav");
-        string Sample6Path => GetSamplePath("440Hz_44100Hz_16bit_05sec.wav");
-
-        private string GetSamplePath(string fileName)
-        {
-            var currentDirectory = Environment.CurrentDirectory;
-            var folder = Path.Combine(currentDirectory.GetParentFolder(4), "Samples");
-            var path = Path.Combine(folder, fileName);
-            return path;
-        }
+        string Sample1Path => Samples.GetSamplePath("Sample1.wav");
+        string Sample2Path => Samples.GetSamplePath("Sample2.wav");
+        string Sample3Path => Samples.GetSamplePath("Sample3.wav");
+        string Sample4Path => Samples.Wave100hz;
+        string Sample5Path => Samples.Wave250hz;
+        string Sample6Path => Samples.Wave440hz;
 
         [Test]
         public void ParseSample1()
