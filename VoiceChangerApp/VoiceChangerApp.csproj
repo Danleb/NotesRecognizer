@@ -7,11 +7,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="C:\Users\Challenger\.nuget\packages\nlog.config\4.7.8\contentFiles\any\any\NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.7.8" />
+    <PackageReference Include="NLog.Schema" Version="4.7.8" />
     <PackageReference Include="Prism.Core" Version="8.0.0.1909" />
+    <PackageReference Include="SharpGL.WPF" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VoiceChanger\VoiceChanger.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

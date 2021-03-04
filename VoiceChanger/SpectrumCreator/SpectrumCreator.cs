@@ -92,28 +92,36 @@ namespace VoiceChanger.SpectrumCreator
             var kernel = _cl.CreateKernel(_program, "ComputeSpectrum", out errorCode);
             CheckSuccess(errorCode);
 
-            _cl.SetKernelArg(kernel, 0, (nuint)sizeof(nuint), bufferKernelInput);
-            _cl.SetKernelArg(kernel, 1, (nuint)sizeof(nuint), bufferKernelOutput);
+            res = _cl.SetKernelArg(kernel, 0, (nuint)sizeof(nuint), bufferKernelInput);
+            CheckSuccess(res);
+            res = _cl.SetKernelArg(kernel, 1, (nuint)sizeof(nuint), bufferKernelOutput);
+            CheckSuccess(res);
 
-            var globalWorkSize = new UnmanagedArray<nuint>(3)
-            {
-                bufferInputElementsCount, 0, 0
-            };
+            //var globalWorkSize = new UnmanagedArray<nuint>(3)
+            //{
+            //    bufferInputElementsCount, 0, 0
+            //};
             var localWorkSize = new UnmanagedArray<nuint>(3)
             {
                 1, 1, 1
             };
-            res = _cl.EnqueueNdrangeKernel(_commandQueue, kernel, 1, 0, globalWorkSize, localWorkSize, 0, null, out var calculateEvent);
+            res = _cl.EnqueueNdrangeKernel(_commandQueue, kernel, 1, 0, bufferInputElementsCount, localWorkSize, 0, null, out var calculateEvent);
             CheckSuccess(res);
 
+            _cl.Finish(_commandQueue);
+
             var outputHostBuffer = new UnmanagedArray<float>(bufferKernelOutputSize / sizeof(float));
-            res = _cl.EnqueueReadBuffer(_commandQueue, bufferKernelOutput, true, 0, bufferKernelOutputSize, outputHostBuffer, 1, calculateEvent, out @event);
+            res = _cl.EnqueueReadBuffer(_commandQueue, bufferKernelOutput, true, 0, bufferKernelOutputSize, outputHostBuffer, 0, null, out @event);
             CheckSuccess(res);
 
             SpectrumContainer = new SpectrumContainer();
 
+            var x = outputHostBuffer[0];
+
             _cl.Flush(_commandQueue);
             _cl.Finish(_commandQueue);
+            _cl.ReleaseMemObject(bufferKernelInput);
+            _cl.ReleaseMemObject(bufferKernelOutput);
             _cl.ReleaseKernel(kernel);
             _cl.ReleaseProgram(_program);
             _cl.ReleaseCommandQueue(_commandQueue);
@@ -152,7 +160,7 @@ namespace VoiceChanger.SpectrumCreator
 
         private unsafe void NotifyCallback(byte* errinfo, void* privateInfo, nuint cb, void* userData)
         {
-            var errorString = Encoding.ASCII.GetString(errinfo, StringUtil.GetCStrLength(errinfo));
+            var errorString = Encoding.ASCII.GetString(errinfo, 20);
             Console.WriteLine(errorString);
         }
 

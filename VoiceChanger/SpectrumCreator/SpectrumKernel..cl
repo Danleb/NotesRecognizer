@@ -1,6 +1,6 @@
-﻿__kernel void ComputeSpectrum(__global const float* input0,
-    __global float* out)
+﻿__kernel void ComputeSpectrum(__global float* input,
+    __global float* output)
 {
-    const size_t idx = get_global_id(0);
-    out[idx] = 50;
+    int i = get_global_id(0);
+    output[i] = 64;
 }

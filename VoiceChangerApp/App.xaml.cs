@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using NLog;
+using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace VoiceChangerApp
@@ -13,5 +9,19 @@ namespace VoiceChangerApp
     /// </summary>
     public partial class App : Application
     {
+        private static Logger logger;
+
+        void App_Startup(object sender, StartupEventArgs e)
+        {
+#if DEBUG
+            AllocConsole();
+#endif
+            logger = LogManager.GetCurrentClassLogger();
+            logger.Info("App loaded.");
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
     }
 }
