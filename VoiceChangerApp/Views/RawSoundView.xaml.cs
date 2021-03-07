@@ -1,14 +1,20 @@
 ﻿using SharpGL;
 using System;
-using System.Windows;
+using System.Windows.Controls;
 
-namespace VoiceChangerApp
+namespace VoiceChangerApp.Views
 {
-    public partial class EditorWindow : Window
+    public partial class RawSoundView : UserControl
     {
-        public EditorWindow()
+        public RawSoundView()
         {
             InitializeComponent();
+            OpenGLControl.RenderContextType = RenderContextType.HiddenWindow;
+        }
+
+        public void SetSelected(bool isSelected)
+        {
+            OpenGLControl.RenderContextType = isSelected ? RenderContextType.DIBSection : RenderContextType.HiddenWindow;
         }
 
         private void OpenGlControl_Initialized(object sender, EventArgs e)

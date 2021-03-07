@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using VoiceChanger.Utils;
 
-namespace VoiceChangerTests.Utils
+namespace VoiceChanger.Utils
 {
     public static class Samples
     {

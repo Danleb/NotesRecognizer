@@ -1,0 +1,54 @@
+﻿<Window x:Class="VoiceChangerApp.Views.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VoiceChangerApp.Views"
+        xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        d:DataContext="{d:DesignInstance {x:Type vm:EditorWindowViewModel}, IsDesignTimeCreatable=True}"
+        Title="Editor" Height="720" Width="1280"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="0">
+            <TabItem x:Name="FileInfoTab">
+                <TabItem.Header>
+                    <Label Content="File"></Label>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <local:FileInfoView></local:FileInfoView>
+                </TabItem.Content>
+            </TabItem>
+
+            <TabItem x:Name="RawViewTab">
+                <TabItem.Header>
+                    <Label Content="Raw view"></Label>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <local:RawSoundView x:Name="RawSoundView"></local:RawSoundView>
+                </TabItem.Content>
+            </TabItem>
+
+            <TabItem x:Name="SpectrumViewTab">
+                <TabItem.Header>
+                    <Label Content="Spectrum view"></Label>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Label Content="Placeholder"></Label>
+                </TabItem.Content>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <Label Content="Notes recognizing"></Label>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Label Content="Placeholder"></Label>
+                </TabItem.Content>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

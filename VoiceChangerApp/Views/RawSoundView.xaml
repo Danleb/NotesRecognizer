@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="VoiceChangerApp.Views.RawSoundView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VoiceChangerApp.Views"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+             xmlns:prism="http://prismlibrary.com/"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <DockPanel>
+            <!--<local:UserControl1 x:Name="OpenGLCONTROL"></local:UserControl1>-->
+            <sharpGL:OpenGLControl x:Name="OpenGLControl" Margin="5" Initialized="OpenGlControl_Initialized" Resized="OpenGlControl_Resized" OpenGLDraw="OpenGlControl_OpenGLDraw"></sharpGL:OpenGLControl>
+        </DockPanel>
+    </Grid>
+</UserControl>
