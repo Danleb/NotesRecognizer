@@ -10,8 +10,14 @@
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DataContext="{d:DesignInstance {x:Type vm:FileInfoViewModel}, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
     <Grid>
-        <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
-        <!--<Label Content="{Binding Path}"></Label>-->
+        <StackPanel Orientation="Vertical">
+            <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
+            <Label Content="{Binding Path}"></Label>
+            <!--<Label Visibility="{Binding Path=IsLoadedFromFile, Converter={StaticResource BooleanToVisibilityConverter}}" Content="{Binding Path}"></Label>-->
+        </StackPanel>
     </Grid>
 </UserControl>

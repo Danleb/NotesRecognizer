@@ -17,29 +17,9 @@ namespace VoiceChangerApp.ViewModels
         {
             SoundDataModel = soundDataModel;
 
-            Observable.FromEvent<Exception>(
-                v =>
-                {
-                    SoundDataModel.OnException += v;
-                },
-                v =>
-                {
-                    SoundDataModel.OnException -= v;
-                }).Subscribe(
-                e =>
+            SoundDataModel.OnException.Subscribe(e =>
             {
                 MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            });
-
-            //SoundDataModel.OnException.AsObservable().Subscribe(
-            //e =>
-            //{
-            //    MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //});
-
-            SoundDataModel.SoundTrackLoaded.AsObservable().Subscribe(v =>
-            {
-                Console.WriteLine("!!!!!");
             });
         }
 

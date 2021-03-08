@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using VoiceChanger.FormatParser;
 using VoiceChanger.SpectrumCreator;
 using VoiceChanger.Utils;
@@ -13,44 +12,57 @@ namespace VoiceChangerApp.Models
     {
         public SoundDataModel()
         {
+            OnLoadFile.Subscribe(LoadFile);
+
             LoadDefaultFile();
         }
 
-        public Subject<bool> SoundTrackLoaded = new();
+        #region Events
+
+        public Subject<string> OnLoadFile = new();
+        public Subject<bool> OnSoundTrackLoaded = new();
         public Subject<Exception> OnException = new();
-        public Subject<bool> IsLoading = new();
+        public Subject<bool> OnIsLoading = new();
+
+        #endregion
+
+        #region Data
 
         public AudioContainer AudioContainer { get; private set; }
         public SpectrumCreator SpectrumCreator { get; private set; }
         public SpectrumContainer SpectrumContainer => SpectrumCreator.SpectrumContainer;
-        public bool IsAudioContainerCreated { get; set; }
+        public bool IsAudioContainerCreated => AudioContainer != null;
+        public bool IsLoadedFromFile { get; private set; }
+        public string Path { get; private set; }
 
-        public void LoadFile(string path)
+        #endregion
+
+        private void LoadFile(string path)
         {
-            Task.Run(() =>
+            Path = path;
+            IsLoadedFromFile = true;
+            OnIsLoading.OnNext(true);
+
+            try
             {
-                try
-                {
-                    IsLoading.OnNext(true);
-                    AudioContainer = AudioLoader.Load(path);
-                    SoundTrackLoaded.OnNext(true);
-                }
-                catch (Exception e)
-                {
-                    SoundTrackLoaded.OnNext(false);
-                    OnException.OnNext(e);
-                }
-                finally
-                {
-                    IsLoading.OnNext(false);
-                }
-            });
+                AudioContainer = AudioLoader.Load(path);
+                OnSoundTrackLoaded.OnNext(true);
+            }
+            catch (Exception e)
+            {
+                OnSoundTrackLoaded.OnNext(false);
+                OnException.OnNext(e);
+            }
+            finally
+            {
+                OnIsLoading.OnNext(false);
+            }
         }
 
         [Conditional("DEBUG")]
         private void LoadDefaultFile()
         {
-            LoadFile(Samples.Wave100hz);
+            OnLoadFile.OnNext(Samples.Wave100hz);
         }
     }
 }

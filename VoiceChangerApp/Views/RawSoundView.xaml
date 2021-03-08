@@ -8,12 +8,14 @@
              xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance {x:Type vm:RawSoundViewModel}, IsDesignTimeCreatable=True}"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <DockPanel>
+            <local:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}"></local:SignalgramView>
             <!--<local:UserControl1 x:Name="OpenGLCONTROL"></local:UserControl1>-->
-            <sharpGL:OpenGLControl x:Name="OpenGLControl" Margin="5" Initialized="OpenGlControl_Initialized" Resized="OpenGlControl_Resized" OpenGLDraw="OpenGlControl_OpenGLDraw"></sharpGL:OpenGLControl>
+            <!--<sharpGL:OpenGLControl x:Name="OpenGLControl" Margin="5" Initialized="OpenGlControl_Initialized" Resized="OpenGlControl_Resized" OpenGLDraw="OpenGlControl_OpenGLDraw"></sharpGL:OpenGLControl>-->
         </DockPanel>
     </Grid>
 </UserControl>

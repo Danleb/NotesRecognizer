@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SpectrumCreator\SpectrumKernel..cl" />
+    <None Remove="SpectrumCreator\SpectrumKernel.cl" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="SpectrumCreator\SpectrumKernel..cl" />
+    <EmbeddedResource Include="SpectrumCreator\SpectrumKernel.cl" />
   </ItemGroup>
 
   <ItemGroup>

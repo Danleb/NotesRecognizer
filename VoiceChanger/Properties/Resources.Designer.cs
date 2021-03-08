@@ -63,9 +63,9 @@ namespace VoiceChanger.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] SpectrumKernel_ {
+        internal static byte[] SpectrumKernel {
             get {
-                object obj = ResourceManager.GetObject("SpectrumKernel_", resourceCulture);
+                object obj = ResourceManager.GetObject("SpectrumKernel", resourceCulture);
                 return ((byte[])(obj));
             }
         }

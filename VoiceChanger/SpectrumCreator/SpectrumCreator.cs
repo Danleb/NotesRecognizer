@@ -80,9 +80,9 @@ namespace VoiceChanger.SpectrumCreator
             inputHostBuffer[1] = 8;
             _cl.EnqueueWriteBuffer(_commandQueue, bufferKernelInput, true, 0, bufferKernelInputSize, inputHostBuffer, 0, 0, out var @event);
 
-            fixed (byte* kernelSource = Resources.SpectrumKernel_)
+            fixed (byte* kernelSource = Resources.SpectrumKernel)
             {
-                _program = _cl.CreateProgramWithSource(_context, 1, kernelSource, (nuint)Resources.SpectrumKernel_.Length, out errorCode);
+                _program = _cl.CreateProgramWithSource(_context, 1, kernelSource, (nuint)Resources.SpectrumKernel.Length, out errorCode);
                 CheckSuccess(errorCode);
             }
 

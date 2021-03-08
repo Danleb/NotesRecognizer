@@ -13,6 +13,9 @@
     <Compile Update="Views\RawSoundView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\SignalgramView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\EditorWindow.xaml">
@@ -22,6 +25,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RawSoundView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\SignalgramView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
