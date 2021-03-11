@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using VoiceChanger.FormatParser;
 using VoiceChangerApp.Models;
+using VoiceChangerApp.Views.SoundViews;
 
 namespace VoiceChangerApp.ViewModels
 {
@@ -28,8 +29,6 @@ namespace VoiceChangerApp.ViewModels
                 {
                     AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
                 });
-
-            AudioContainer = new AudioContainer(0, 0, null);
         }
 
         private AudioContainer _audioContainer;
@@ -37,6 +36,13 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _audioContainer; }
             set { SetProperty(ref _audioContainer, value); }
+        }
+
+        private SoundViewPosition _soundViewPosition;
+        public SoundViewPosition SoundViewPosition
+        {
+            get { return _soundViewPosition; }
+            set { SetProperty(ref _soundViewPosition, value); }
         }
 
         public SoundDataModel SoundDataModel { get; }

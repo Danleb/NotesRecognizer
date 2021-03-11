@@ -13,7 +13,7 @@
     <Compile Update="Views\RawSoundView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\SignalgramView.xaml.cs">
+    <Compile Update="Views\SoundViews\SignalgramView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -27,7 +27,7 @@
     <Page Update="Views\RawSoundView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\SignalgramView.xaml">
+    <Page Update="Views\SoundViews\SignalgramView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

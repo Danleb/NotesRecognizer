@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:VoiceChangerApp.Views"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+             xmlns:soundViews="clr-namespace:VoiceChangerApp.Views.SoundViews"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance {x:Type vm:RawSoundViewModel}, IsDesignTimeCreatable=True}"
@@ -13,9 +14,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <DockPanel>
-            <local:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}"></local:SignalgramView>
-            <!--<local:UserControl1 x:Name="OpenGLCONTROL"></local:UserControl1>-->
-            <!--<sharpGL:OpenGLControl x:Name="OpenGLControl" Margin="5" Initialized="OpenGlControl_Initialized" Resized="OpenGlControl_Resized" OpenGLDraw="OpenGlControl_OpenGLDraw"></sharpGL:OpenGLControl>-->
+            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" ></soundViews:SignalgramView>
         </DockPanel>
     </Grid>
 </UserControl>

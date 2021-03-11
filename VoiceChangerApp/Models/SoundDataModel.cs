@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Extensions.Logging;
+using Prism.Mvvm;
 using System;
 using System.Diagnostics;
 using System.Reactive.Subjects;
@@ -10,10 +11,13 @@ namespace VoiceChangerApp.Models
 {
     public class SoundDataModel : BindableBase
     {
-        public SoundDataModel()
-        {
-            OnLoadFile.Subscribe(LoadFile);
+        private readonly ILogger _logger;
 
+        public SoundDataModel(ILogger<SoundDataModel> logger)
+        {
+            _logger = logger;
+
+            OnLoadFile.Subscribe(LoadFile);
             LoadDefaultFile();
         }
 
@@ -45,6 +49,7 @@ namespace VoiceChangerApp.Models
 
             try
             {
+                _logger.LogInformation("Loading from path {Path}", path);
                 AudioContainer = AudioLoader.Load(path);
                 OnSoundTrackLoaded.OnNext(true);
             }

@@ -13,7 +13,7 @@
         Title="Editor" Height="720" Width="1280"
         WindowStartupLocation="CenterScreen">
     <Grid>
-        <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="0">
+        <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="1">
             <TabItem x:Name="FileInfoTab">
                 <TabItem.Header>
                     <Label Content="File"></Label>
