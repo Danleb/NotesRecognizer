@@ -12,8 +12,11 @@
                                Initialized="OpenGLControl_Initialized"
                                OpenGLDraw="OpenGLControl_OpenGLDraw"
                                Resized="OpenGLControl_Resized"
-                               MouseWheel="OpenGLControl_MouseWheel"
                                KeyDown="OpenGLControl_KeyDown"
+                               MouseWheel="OpenGLControl_MouseWheel"
+                               MouseDown="OpenGLControl_MouseDown"
+                               MouseUp="OpenGLControl_MouseUp"
+                               MouseMove="OpenGLControl_MouseMove"                               
                                />
     </Grid>
 </UserControl>

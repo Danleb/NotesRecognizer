@@ -10,9 +10,12 @@
             Right = 1;
             Far = -1;
             Near = 1;
+            ScaleX = 1;
+            ScaleY = 1;
+            UpdateMatrix();
         }
 
-        public double[] Matrix = new double[16];
+        public float[] Matrix = new float[16];
         public float Top { get; set; }
         public float Bottom { get; set; }
         public float Left { get; set; }
@@ -24,13 +27,13 @@
 
         public void UpdateMatrix()
         {
-            Matrix[0 * 4 + 0] = 2 / (Right - Left);
+            Matrix[0 * 4 + 0] = (2 / (Right - Left)) * ScaleX;
             Matrix[0 * 4 + 1] = 0;
             Matrix[0 * 4 + 2] = 0;
             Matrix[0 * 4 + 3] = 0;
 
             Matrix[1 * 4 + 0] = 0;
-            Matrix[1 * 4 + 1] = 2 / (Top - Bottom);
+            Matrix[1 * 4 + 1] = 2 / (Top - Bottom) * ScaleY;
             Matrix[1 * 4 + 2] = 0;
             Matrix[1 * 4 + 3] = 0;
 

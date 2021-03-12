@@ -35,7 +35,7 @@ namespace VoiceChangerApp.ViewModels
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(OnSoundTrackLoaded);
 
-            OnSoundTrackLoaded(true);
+            OnSoundTrackLoaded(SoundDataModel.IsAudioContainerCreated);
         }
 
         private void OnSoundTrackLoaded(bool success)

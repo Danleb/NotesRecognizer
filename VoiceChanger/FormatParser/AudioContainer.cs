@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace VoiceChanger.FormatParser
 {
@@ -15,6 +16,9 @@ namespace VoiceChanger.FormatParser
             {
                 throw new Exception();
             }
+
+            Max = Data.Max();
+            Min = Data.Min();
         }
 
         public float Duration { get; private set; }
@@ -27,5 +31,8 @@ namespace VoiceChanger.FormatParser
         public int[] Data { get; private set; }
 
         public int ValuesCount => Data.Length;
+
+        public int Max { get; }
+        public int Min { get; }
     }
 }

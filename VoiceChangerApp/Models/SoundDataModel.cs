@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using VoiceChanger.FormatParser;
@@ -16,7 +17,6 @@ namespace VoiceChangerApp.Models
         public SoundDataModel(ILogger<SoundDataModel> logger)
         {
             _logger = logger;
-
             OnLoadFile.Subscribe(LoadFile);
             LoadDefaultFile();
         }

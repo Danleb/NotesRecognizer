@@ -25,10 +25,14 @@ namespace VoiceChangerApp.ViewModels
 
             SoundDataModel.OnSoundTrackLoaded
                 .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(_ =>
-                {
-                    AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
-                });
+                .Subscribe(OnSoundTrackLoaded);
+
+            OnSoundTrackLoaded(SoundDataModel.IsAudioContainerCreated);
+        }
+
+        private void OnSoundTrackLoaded(bool success)
+        {
+            AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
         }
 
         private AudioContainer _audioContainer;

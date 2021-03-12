@@ -14,7 +14,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <DockPanel>
-            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" ></soundViews:SignalgramView>
+            <soundViews:NavigationBar DockPanel.Dock="Bottom"/>
+            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" ></soundViews:SignalgramView>            
         </DockPanel>
     </Grid>
 </UserControl>

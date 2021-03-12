@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Unity;
-using Unity.Injection;
 using Unity.Lifetime;
 using VoiceChangerApp.Models;
 using VoiceChangerApp.ViewModels;
@@ -14,9 +13,6 @@ using VoiceChangerApp.Views;
 
 namespace VoiceChangerApp
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : PrismApplication
     {
         private static ILogger _logger;
@@ -31,9 +27,9 @@ namespace VoiceChangerApp
             containerRegistry.Register<FileInfoViewModel, FileInfoViewModel>();
             containerRegistry.Register<EditorWindowViewModel, EditorWindowViewModel>();
             containerRegistry.Register<RawSoundViewModel, RawSoundViewModel>();
-            var container = (UnityContainer)containerRegistry.GetContainer();
 
-            var loggerFactory = new LoggerFactory().AddNLog();
+            var container = (UnityContainer)containerRegistry.GetContainer();
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddNLog());
             var factoryMethod = typeof(LoggerFactoryExtensions).
                           GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
                           .First(x => x.ContainsGenericParameters);

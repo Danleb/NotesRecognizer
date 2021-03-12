@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Prism.Ioc;
 using SharpGL;
+using SharpGL.WPF;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using VoiceChanger.FormatParser;
 using VoiceChangerApp.Utils;
 using AppResources = VoiceChangerApp.Resources;
@@ -31,22 +32,25 @@ namespace VoiceChangerApp.Views.SoundViews
             typeof(SignalgramView),
             new UIPropertyMetadata(5.0f));
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
+        private readonly uint[] _bufferTemp = new uint[10];
         private OpenGL _gl;
-        private uint[] _bufferTemp = new uint[10];
-        private int[] _bufferTempInt = new int[10];
         private float[] _points;
         private uint _linesVBO = OpenGLUtils.NO_BUFFER;
         private uint _linesVAO = OpenGLUtils.NO_BUFFER;
         private uint _program = OpenGLUtils.NO_PROGRAM;
         private AudioContainer _containerCached;
-        private OrthographicProjection _projection = new OrthographicProjection();
-        Stopwatch sw = Stopwatch.StartNew();
+        private OrthographicProjection _projection = new();
+        private int _mvpMatrixLocation;
+        private DispatcherTimer _keyTimer;
+        private bool _isMousePressed = false;
+        private Point _mousePressedStart;
 
         public SignalgramView()
         {
             InitializeComponent();
             _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
+
             //OpenGLControl.RenderContextType = RenderContextType.HiddenWindow;
             OpenGLControl.RenderContextType = RenderContextType.FBO;
             OpenGLControl.RenderTrigger = RenderTrigger.Manual;
@@ -54,8 +58,7 @@ namespace VoiceChangerApp.Views.SoundViews
 
         public void SetSelected(bool isSelected)
         {
-            //RenderContextType.FBO
-            //OpenGLControl.RenderContextType = isSelected ? RenderContextType.NativeWindow : RenderContextType.HiddenWindow;
+            OpenGLControl.RenderContextType = isSelected ? RenderContextType.FBO : RenderContextType.HiddenWindow;
             if (isSelected)
             {
                 OpenGLControl.RenderTrigger = RenderTrigger.TimerBased;
@@ -69,7 +72,7 @@ namespace VoiceChangerApp.Views.SoundViews
             set
             {
                 SetValue(AudioContainerProperty, value);
-                InitializeBuffers();
+                CheckAndInitAudioData();
             }
         }
 
@@ -88,7 +91,7 @@ namespace VoiceChangerApp.Views.SoundViews
         }
 
         public float Scale { get; set; } = 1.0f;
-        public float ScaleSpeed { get; set; } = 0.1f;
+        public float ScaleSpeed { get; set; } = 1.0f / 800.0f;
 
 
         public void ResetView()
@@ -96,12 +99,13 @@ namespace VoiceChangerApp.Views.SoundViews
 
         }
 
-        private void InitializeBuffers()
+        private void CheckAndInitAudioData()
         {
             if (_containerCached == AudioContainer)
             {
                 return;
             }
+            _containerCached = AudioContainer;
 
             _logger.LogDebug("Initializing SignalgramView.");
             if (_linesVBO != OpenGLUtils.NO_BUFFER)
@@ -127,10 +131,10 @@ namespace VoiceChangerApp.Views.SoundViews
                 _points[i * 2] = i * signalDuration;
                 _points[i * 2 + 1] = AudioContainer.Data[i];
             }
-            _points[0] = -1.0f;
-            _points[1] = -1.0f;
-            _points[2] = 1.0f;
-            _points[3] = 1.0f;
+            //_points[0] = -1.0f;
+            //_points[1] = -1.0f;
+            //_points[2] = 1.0f;
+            //_points[3] = 1.0f;
 
             _gl.GenBuffers(1, _bufferTemp);
             _linesVBO = _bufferTemp[0];
@@ -142,14 +146,21 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.BindVertexArray(_linesVAO);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _linesVBO);
 
-            int positionAttribute = _gl.GetAttribLocation(_program, "position");
+            int positionAttribute = _gl.GetAttribLocation(_program, "vertexPosition");
             _gl.VertexAttribPointer((uint)positionAttribute, 2, OpenGL.GL_FLOAT, false, 0, IntPtr.Zero);
             _gl.EnableVertexAttribArray((uint)positionAttribute);
 
-
+            _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
 
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
+
+            _projection = new();
+            _projection.Top = AudioContainer.Max;
+            _projection.Bottom = AudioContainer.Min;
+            _projection.Left = 0;
+            _projection.Right = 1;
+            _projection.UpdateMatrix();
         }
 
         private void OpenGLControl_Initialized(object sender, System.EventArgs e)
@@ -159,7 +170,7 @@ namespace VoiceChangerApp.Views.SoundViews
 
         }
 
-        private void InitializeProgram()
+        private void CheckAndInitProgram()
         {
             if (_program != OpenGLUtils.NO_PROGRAM)
             {
@@ -167,11 +178,7 @@ namespace VoiceChangerApp.Views.SoundViews
             }
             try
             {
-                //var sourceString = Encoding.ASCII.GetString(AppResources.Pass_vert);
-                //var sourceString2 = Encoding.ASCII.GetString(AppResources.Signalgram_frag);
-                //ShaderProgram shaderProgram = new ShaderProgram();
-                //shaderProgram.Create(_gl, sourceString, sourceString2, new System.Collections.Generic.Dictionary<uint, string>());
-                _program = _gl.CompileProgram(AppResources.Pass_vert, AppResources.Signalgram_frag);
+                _program = _gl.CompileProgram(AppResources.SimpleMatrix_vert, AppResources.Signalgram_frag);
             }
             catch (Exception exception)
             {
@@ -179,20 +186,32 @@ namespace VoiceChangerApp.Views.SoundViews
             }
         }
 
-        private void OpenGLControl_Resized(object sender, SharpGL.WPF.OpenGLRoutedEventArgs args)
+        private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs args)
         {
 
         }
 
-        private void OpenGLControl_OpenGLDraw(object sender, SharpGL.WPF.OpenGLRoutedEventArgs args)
+        private bool IsRendering()
+        {
+            return OpenGLControl.RenderContextType == RenderContextType.FBO;
+        }
+
+        private bool IsGLInitialized()
+        {
+            return _program != OpenGLUtils.NO_PROGRAM && _linesVBO != OpenGLUtils.NO_BUFFER;
+        }
+
+        private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs args)
         {
             _gl = args.OpenGL;
 
-            if (sw.ElapsedMilliseconds > 5000)
+            if (!IsRendering())
             {
-                InitializeProgram();
-                InitializeBuffers();
+                return;
             }
+
+            CheckAndInitProgram();
+            CheckAndInitAudioData();
 
             if (!IsGLInitialized())
             {
@@ -205,33 +224,25 @@ namespace VoiceChangerApp.Views.SoundViews
             }
             else
             {
-                _gl.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                _gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             }
 
             _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
 
-            _gl.MatrixMode(OpenGL.GL_PROJECTION);
-            //_gl.LoadIdentity();
-            _gl.LoadMatrix(_projection.Matrix);
-            //set matrix
             _gl.UseProgram(_program);
+            _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _projection.Matrix);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _linesVBO);
             _gl.BindVertexArray(_linesVAO);
 
             _gl.LineWidth(LineWidth);
-            _gl.DrawArrays(OpenGL.GL_LINE_STRIP, 0, 100);//AudioContainer.ValuesCount
+            _gl.DrawArrays(OpenGL.GL_LINE_STRIP, 0, AudioContainer.ValuesCount);
 
             _gl.UseProgram(OpenGLUtils.NO_PROGRAM);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
         }
 
-        private bool IsGLInitialized()
-        {
-            return _program != OpenGLUtils.NO_PROGRAM && _linesVBO != OpenGLUtils.NO_BUFFER;
-        }
-
-        private void OpenGLControl_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void OpenGLControl_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
@@ -239,17 +250,42 @@ namespace VoiceChangerApp.Views.SoundViews
             }
             else
             {
-
+                var diff = ScaleSpeed * e.Delta;
+                _projection.ScaleX += diff;
+                //_logger.LogInformation($"ScaleX={_projection.ScaleX} Diff={diff}");
             }
 
-            Scale += ScaleSpeed * e.Delta;
-            _projection.Right = Scale;
             _projection.UpdateMatrix();
         }
 
-        private void OpenGLControl_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void OpenGLControl_KeyDown(object sender, KeyEventArgs e)
         {
 
+        }
+
+        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isMousePressed)
+            {
+                return;
+            }
+
+            var delta = e.GetPosition(OpenGLControl) - _mousePressedStart;
+            var deltaX = (float)delta.X / 300.0f;
+            _projection.Right += deltaX;
+            _projection.Left += deltaX;
+            _projection.UpdateMatrix();
+        }
+
+        private void OpenGLControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _isMousePressed = true;
+            _mousePressedStart = e.GetPosition(OpenGLControl);
+        }
+
+        private void OpenGLControl_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _isMousePressed = false;
         }
     }
 }
