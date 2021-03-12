@@ -11,7 +11,7 @@ namespace VoiceChangerApp.Views
 
         public void SetSelected(bool isSelected)
         {
-            SignalgramView.SetSelected(isSelected);
+            SignalgramView.SetActiveRenderState(isSelected);
         }
     }
 }

@@ -7,12 +7,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DockPanel LastChildFill="False">
-            <Button Content="&lt;&lt;" DockPanel.Dock="Left"></Button>
-            <Button Content="Play"></Button>
-            <Button Content="Pause"></Button>
-            <Button Content="Stop"></Button>
-            <Button Content=">>" DockPanel.Dock="Right"></Button>            
-        </DockPanel>
+        <StackPanel Orientation="Vertical">
+            <ProgressBar Minimum="0" Maximum="100" Value="50" MinHeight="20">
+            </ProgressBar>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Margin="5" Content="&lt;&lt;" DockPanel.Dock="Left"></Button>
+                <Button Margin="5" Content="Stop"></Button>
+                <Button Margin="5" Content="Play/Pause"></Button>
+                <Button Margin="5" Content=">>" DockPanel.Dock="Right"></Button>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

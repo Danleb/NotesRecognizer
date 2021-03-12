@@ -45,6 +45,9 @@ namespace VoiceChangerApp.ViewModels
             if (IsLoadedFromFile)
             {
                 Path = SoundDataModel.Path;
+                Duration = SoundDataModel.AudioContainer.Duration;
+                SampleRate = SoundDataModel.AudioContainer.SampleRate;
+                SignalsCount = SoundDataModel.AudioContainer.Data.Length;
             }
         }
 
@@ -67,6 +70,27 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _isLoadedFromFile; }
             set { SetProperty(ref _isLoadedFromFile, value); }
+        }
+
+        private float _duration;
+        public float Duration
+        {
+            get { return _duration; }
+            set { SetProperty(ref _duration, value); }
+        }
+
+        private int _sampleRate;
+        public int SampleRate
+        {
+            get { return _sampleRate; }
+            set { SetProperty(ref _sampleRate, value); }
+        }
+
+        private int _signalsCount;
+        public int SignalsCount
+        {
+            get { return _signalsCount; }
+            set { SetProperty(ref _signalsCount, value); }
         }
 
         public DelegateCommand OpenFileCommand { get; private set; }

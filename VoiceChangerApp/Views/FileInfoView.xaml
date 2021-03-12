@@ -11,13 +11,32 @@
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DataContext="{d:DesignInstance {x:Type vm:FileInfoViewModel}, IsDesignTimeCreatable=True}">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
             <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
-            <Label Content="{Binding Path}"></Label>
-            <!--<Label Visibility="{Binding Path=IsLoadedFromFile, Converter={StaticResource BooleanToVisibilityConverter}}" Content="{Binding Path}"></Label>-->
+            <StackPanel Orientation="Horizontal">
+                <Label Content="File path: " Style="{DynamicResource BoldLabel}"/>
+                <Label Content="{Binding Path}"></Label>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Sound track duration: " Style="{DynamicResource BoldLabel}"/>
+                <Label Content="{Binding Duration}" ContentStringFormat="{}{0} s."/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Sample rate: " Style="{DynamicResource BoldLabel}"/>
+                <Label Content="{Binding SampleRate}" ContentStringFormat="{}{0} Hz"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Signals count: " Style="{DynamicResource BoldLabel}"/>
+                <Label Content="{Binding SignalsCount}" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

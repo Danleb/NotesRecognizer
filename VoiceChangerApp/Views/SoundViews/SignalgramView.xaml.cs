@@ -40,29 +40,26 @@ namespace VoiceChangerApp.Views.SoundViews
         private uint _linesVAO = OpenGLUtils.NO_BUFFER;
         private uint _program = OpenGLUtils.NO_PROGRAM;
         private AudioContainer _containerCached;
-        private OrthographicProjection _projection = new();
+        private OrthographicViewportMatrix _viewport = new();
         private int _mvpMatrixLocation;
         private DispatcherTimer _keyTimer;
         private bool _isMousePressed = false;
-        private Point _mousePressedStart;
+        private Point _moveStartMousePosition;
+        private float _moveStartViewportCenterPosition;
+        private bool _isRedrawNeeded = false;
 
         public SignalgramView()
         {
             InitializeComponent();
             _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
+            _keyTimer = new DispatcherTimer();
+            _keyTimer.Interval = TimeSpan.FromSeconds(1.0f / 30);
+            _keyTimer.Tick += KeyboardTimerTick;
+            _keyTimer.Start();
 
             //OpenGLControl.RenderContextType = RenderContextType.HiddenWindow;
             OpenGLControl.RenderContextType = RenderContextType.FBO;
             OpenGLControl.RenderTrigger = RenderTrigger.Manual;
-        }
-
-        public void SetSelected(bool isSelected)
-        {
-            OpenGLControl.RenderContextType = isSelected ? RenderContextType.FBO : RenderContextType.HiddenWindow;
-            if (isSelected)
-            {
-                OpenGLControl.RenderTrigger = RenderTrigger.TimerBased;
-            }
         }
 
         [Bindable(true)]
@@ -91,12 +88,24 @@ namespace VoiceChangerApp.Views.SoundViews
         }
 
         public float Scale { get; set; } = 1.0f;
-        public float ScaleSpeed { get; set; } = 1.0f / 800.0f;
+        public float MouseWheelScaleSpeed { get; set; } = 1.0f / 800.0f;
+        public float KeyboardNavigationSpeed { get; set; } = 1.0f / 800.0f;
+        private float TimePerPixel => _viewport.ScaledWidth / (float)OpenGLControl.ActualWidth;
 
+        public virtual OpenGLControl GetOpenGLControl() => OpenGLControl;
+
+        public void SetActiveRenderState(bool isSelected)
+        {
+            OpenGLControl.RenderContextType = isSelected ? RenderContextType.FBO : RenderContextType.HiddenWindow;
+            if (isSelected)
+            {
+                OpenGLControl.RenderTrigger = RenderTrigger.TimerBased;
+            }
+        }
 
         public void ResetView()
         {
-
+            _viewport.Reset();
         }
 
         private void CheckAndInitAudioData()
@@ -131,10 +140,6 @@ namespace VoiceChangerApp.Views.SoundViews
                 _points[i * 2] = i * signalDuration;
                 _points[i * 2 + 1] = AudioContainer.Data[i];
             }
-            //_points[0] = -1.0f;
-            //_points[1] = -1.0f;
-            //_points[2] = 1.0f;
-            //_points[3] = 1.0f;
 
             _gl.GenBuffers(1, _bufferTemp);
             _linesVBO = _bufferTemp[0];
@@ -155,19 +160,12 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
 
-            _projection = new();
-            _projection.Top = AudioContainer.Max;
-            _projection.Bottom = AudioContainer.Min;
-            _projection.Left = 0;
-            _projection.Right = 1;
-            _projection.UpdateMatrix();
-        }
-
-        private void OpenGLControl_Initialized(object sender, System.EventArgs e)
-        {
-            _gl = OpenGLControl.OpenGL;
-
-
+            _viewport = new();
+            _viewport.Top = AudioContainer.Max;
+            _viewport.Bottom = AudioContainer.Min;
+            _viewport.Left = 0;
+            _viewport.Right = 1;
+            _viewport.UpdateMatrix();
         }
 
         private void CheckAndInitProgram()
@@ -188,7 +186,7 @@ namespace VoiceChangerApp.Views.SoundViews
 
         private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs args)
         {
-
+            RequestRedraw();
         }
 
         private bool IsRendering()
@@ -199,6 +197,19 @@ namespace VoiceChangerApp.Views.SoundViews
         private bool IsGLInitialized()
         {
             return _program != OpenGLUtils.NO_PROGRAM && _linesVBO != OpenGLUtils.NO_BUFFER;
+        }
+
+        private void RequestRedraw()
+        {
+            _isRedrawNeeded = true;
+        }
+
+        private void ClampValues()
+        {
+            _viewport.Left = MathF.Max(0, _viewport.Left);
+            _viewport.Right = MathF.Min(AudioContainer.Duration, _viewport.Right);
+            _viewport.Bottom = MathF.Max(AudioContainer.Min, _viewport.Bottom);
+            _viewport.Top = MathF.Min(AudioContainer.Max, _viewport.Top);
         }
 
         private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs args)
@@ -218,9 +229,17 @@ namespace VoiceChangerApp.Views.SoundViews
                 return;
             }
 
+            //if (!_isRedrawNeeded)
+            //{
+            //    return;
+            //}
+            //_isRedrawNeeded = false;
+
+            ClampValues();
+
             if (AudioContainer == null)
             {
-                _gl.ClearColor(0.1f, 0.1f, 1.1f, 1.0f);
+                _gl.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             }
             else
             {
@@ -230,7 +249,7 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
 
             _gl.UseProgram(_program);
-            _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _projection.Matrix);
+            _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _linesVBO);
             _gl.BindVertexArray(_linesVAO);
 
@@ -242,20 +261,92 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
         }
 
+        #region Navigation
+
         private void OpenGLControl_MouseWheel(object sender, MouseWheelEventArgs e)
         {
+            var diff = MouseWheelScaleSpeed * e.Delta;
+
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-
+                _viewport.ScaleY += diff;
             }
             else
             {
-                var diff = ScaleSpeed * e.Delta;
-                _projection.ScaleX += diff;
-                //_logger.LogInformation($"ScaleX={_projection.ScaleX} Diff={diff}");
+                _viewport.ScaleX += diff;
             }
 
-            _projection.UpdateMatrix();
+            _viewport.UpdateMatrix();
+        }
+
+        private void KeyboardTimerTick(object sender, EventArgs e)
+        {
+            Vector direction = new(0, 0);
+            bool pressed = false;
+            if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down))
+            {
+                pressed = true;
+                direction.Y = -1;
+            }
+            if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up))
+            {
+                pressed = true;
+                direction.Y = 1;
+            }
+            if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
+            {
+                pressed = true;
+                direction.X = -1;
+            }
+            if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
+            {
+                pressed = true;
+                direction.X = 1;
+            }
+
+            if (!pressed)
+            {
+                return;
+            }
+
+            var timeDelta = _keyTimer.Interval.TotalMilliseconds;
+            direction.Normalize();
+            var offset = direction * timeDelta * KeyboardNavigationSpeed;
+            _viewport.Center += (float)offset.X;
+            _viewport.UpdateMatrix();
+            ClampValues();
+            RequestRedraw();
+        }
+
+        private void OpenGLControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _isMousePressed = true;
+            _moveStartMousePosition = e.GetPosition(OpenGLControl);
+            _moveStartViewportCenterPosition = _viewport.Center;
+        }
+
+        private void OpenGLControl_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _isMousePressed = false;
+        }
+
+        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Released)
+            {
+                _isMousePressed = false;
+            }
+            if (!_isMousePressed)
+            {
+                return;
+            }
+
+            var delta = _moveStartMousePosition - e.GetPosition(OpenGLControl);
+            var deltaX = (float)delta.X;
+            var timeDelta = deltaX * TimePerPixel;
+            _logger.LogDebug($"SoundView MouseMove DeltaX={deltaX} ControlWidth={OpenGLControl.ActualWidth} TimePerPixel={TimePerPixel} timeDelta={timeDelta}");
+            _viewport.Center = _moveStartViewportCenterPosition + timeDelta;
+            _viewport.UpdateMatrix();
         }
 
         private void OpenGLControl_KeyDown(object sender, KeyEventArgs e)
@@ -263,29 +354,6 @@ namespace VoiceChangerApp.Views.SoundViews
 
         }
 
-        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_isMousePressed)
-            {
-                return;
-            }
-
-            var delta = e.GetPosition(OpenGLControl) - _mousePressedStart;
-            var deltaX = (float)delta.X / 300.0f;
-            _projection.Right += deltaX;
-            _projection.Left += deltaX;
-            _projection.UpdateMatrix();
-        }
-
-        private void OpenGLControl_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _isMousePressed = true;
-            _mousePressedStart = e.GetPosition(OpenGLControl);
-        }
-
-        private void OpenGLControl_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            _isMousePressed = false;
-        }
+        #endregion
     }
 }

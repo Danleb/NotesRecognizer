@@ -37,7 +37,7 @@
                     <Label Content="Spectrum view"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <Label Content="Placeholder"></Label>
+                    <local:SpectrumAnalysisView/>
                 </TabItem.Content>
             </TabItem>
 

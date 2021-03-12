@@ -9,14 +9,13 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <sharpGL:OpenGLControl x:Name="OpenGLControl"
-                               Initialized="OpenGLControl_Initialized"
                                OpenGLDraw="OpenGLControl_OpenGLDraw"
                                Resized="OpenGLControl_Resized"
-                               KeyDown="OpenGLControl_KeyDown"
                                MouseWheel="OpenGLControl_MouseWheel"
                                MouseDown="OpenGLControl_MouseDown"
                                MouseUp="OpenGLControl_MouseUp"
-                               MouseMove="OpenGLControl_MouseMove"                               
+                               MouseMove="OpenGLControl_MouseMove"
+                               KeyDown="OpenGLControl_KeyDown"
                                />
     </Grid>
 </UserControl>
