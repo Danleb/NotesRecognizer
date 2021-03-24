@@ -8,16 +8,14 @@ using VoiceChangerApp.Models;
 
 namespace VoiceChangerApp.ViewModels
 {
-    public class FileInfoViewModel : BindableBase
+    public class DataSourceViewModel : BindableBase
     {
-        public FileInfoViewModel()
+        public DataSourceViewModel()
         {
 
         }
 
-        public static SynchronizationContext sc = null;
-
-        public FileInfoViewModel(SoundDataModel soundDataModel)
+        public DataSourceViewModel(SoundDataModel soundDataModel)
         {
             SoundDataModel = soundDataModel;
             OpenFileCommand = new DelegateCommand(() =>
@@ -28,8 +26,6 @@ namespace VoiceChangerApp.ViewModels
                     SoundDataModel.OnLoadFile.OnNext(openFileDialog.FileName);
                 }
             });
-
-            sc = SynchronizationContext.Current;
 
             SoundDataModel.OnSoundTrackLoaded
                 .ObserveOn(SynchronizationContext.Current)
@@ -47,7 +43,7 @@ namespace VoiceChangerApp.ViewModels
                 Path = SoundDataModel.Path;
                 Duration = SoundDataModel.AudioContainer.Duration;
                 SampleRate = SoundDataModel.AudioContainer.SampleRate;
-                SignalsCount = SoundDataModel.AudioContainer.Data.Length;
+                SignalsCount = SoundDataModel.AudioContainer.Samples.Length;
             }
         }
 

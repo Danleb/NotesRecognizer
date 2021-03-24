@@ -2,9 +2,9 @@
 
 namespace VoiceChangerApp.Views
 {
-    public partial class FileInfoView : UserControl
+    public partial class DataSourceView : UserControl
     {
-        public FileInfoView()
+        public DataSourceView()
         {
             InitializeComponent();
         }

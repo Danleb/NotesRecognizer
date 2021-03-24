@@ -15,7 +15,7 @@
     <Grid>
         <DockPanel>
             <soundViews:NavigationBar DockPanel.Dock="Bottom"/>
-            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" ></soundViews:SignalgramView>            
+            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" LineColor="#FFFFFF"></soundViews:SignalgramView>
         </DockPanel>
     </Grid>
 </UserControl>

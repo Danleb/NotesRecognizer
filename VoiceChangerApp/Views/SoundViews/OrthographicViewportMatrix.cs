@@ -4,14 +4,14 @@
     {
         public float[] Matrix = new float[16];
 
-        private float _top;
-        private float _bottom;
         private float _left;
         private float _right;
-        private float _far;
+        private float _bottom;
+        private float _top;
         private float _near;
-        private float _scaleX;
-        private float _scaleY;
+        private float _far;
+        private float _scaleX;//todo remove
+        private float _scaleY;//todo remove
 
         public OrthographicViewportMatrix()
         {
@@ -32,7 +32,7 @@
         public float Width => Right - Left;
         public float Height => Top - Bottom;
 
-        public float Center
+        public float CenterX
         {
             get => (Left + Right) / 2.0f;
             set
@@ -40,6 +40,17 @@
                 var halfWidth = Width / 2.0f;
                 Left = value - halfWidth;
                 Right = value + halfWidth;
+            }
+        }
+
+        public float CenterY
+        {
+            get => (Bottom + Top) / 2.0f;
+            set
+            {
+                var halfHeight = Height / 2.0f;
+                Bottom = value - halfHeight;
+                Top = value + halfHeight;
             }
         }
 
@@ -66,27 +77,48 @@
             Matrix[3 * 4 + 3] = 1;
         }
 
-        //public void ScaleX(float ratio)
-        //{
+        public void DoScaleX(float newScale)
+        {
+            var oldWidth = Width;
+            var newWidth = oldWidth * newScale;
+            var halfWidth = newWidth / 2.0f;
+            var center = CenterX;
+            Left = center - halfWidth;
+            Right = center + halfWidth;
+            UpdateMatrix();
+        }
 
-        //}
+        public void DoScaleY(float newScale)
+        {
+            var oldHeight = Height;
+            var newHeight = oldHeight * newScale;
+            var halfHeight = newHeight / 2.0f;
+            var center = CenterY;
+            Bottom = center - halfHeight;
+            Top = center + halfHeight;
+            UpdateMatrix();
+        }
 
         public void SetLeftPreservingWidth(float newLeft)
         {
-
+            var width = Width;
+            Left = newLeft;
+            Right = newLeft + width;
         }
 
         public void SetRightPreservingWidth(float newRight)
         {
-
+            var width = Width;
+            Right = newRight;
+            Left = newRight - width;
         }
 
         public void Reset()
         {
-            _bottom = -1;
-            _top = 1;
             _left = -1;
             _right = 1;
+            _bottom = -1;
+            _top = 1;
             _far = -1;
             _near = 1;
             _scaleX = 1;

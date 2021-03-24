@@ -7,7 +7,13 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Views\FileInfoView.xaml.cs">
+    <Compile Update="Views\DataSourceView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\DataSourceViews\RecordingSoundView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\DataSourceViews\SoundGenerationView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\RawSoundView.xaml.cs">
@@ -19,10 +25,16 @@
     <Compile Update="Views\SoundViews\SignalgramView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\SoundViews\SpectrumRenderView.xaml.cs">
+    <Compile Update="Views\SoundViews\Spectrum2dRenderView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\SpectrumAnalysisView.xaml.cs">
+    <Compile Update="Views\SoundViews\Spectrum3dRenderView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Spectrum2dAnalysisView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Spectrum3dAnalysisView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -30,10 +42,16 @@
     <Page Update="Styles\Styles.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Views\DataSourceViews\RecordingSoundView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DataSourceViews\SoundGenerationView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\EditorWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\FileInfoView.xaml">
+    <Page Update="Views\DataSourceView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RawSoundView.xaml">
@@ -45,10 +63,16 @@
     <Page Update="Views\SoundViews\SignalgramView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\SoundViews\SpectrumRenderView.xaml">
+    <Page Update="Views\SoundViews\Spectrum2dRenderView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\SpectrumAnalysisView.xaml">
+    <Page Update="Views\SoundViews\Spectrum3dRenderView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Spectrum2dAnalysisView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Spectrum3dAnalysisView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

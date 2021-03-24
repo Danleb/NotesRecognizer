@@ -56,7 +56,7 @@ namespace VoiceChanger
 
             var step = header.NumberOfChannels * header.BytesPerSample;
             var singleChannelDataSize = header.DataSectionSize / step;
-            var singleChannelData = new int[singleChannelDataSize];
+            var singleChannelData = new float[singleChannelDataSize];
 
             var durationSeconds = 1.0f * header.DataSectionSize / header.BytesPerSample / header.NumberOfChannels / header.SampleRate;
 

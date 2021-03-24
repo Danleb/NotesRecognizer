@@ -14,30 +14,39 @@
         WindowStartupLocation="CenterScreen">
     <Grid>
         <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="1">
-            <TabItem x:Name="FileInfoTab">
+            <TabItem>
                 <TabItem.Header>
-                    <Label Content="File"></Label>
+                    <Label Content="Data source"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <local:FileInfoView></local:FileInfoView>
+                    <local:DataSourceView></local:DataSourceView>
                 </TabItem.Content>
             </TabItem>
 
-            <TabItem x:Name="RawViewTab">
+            <TabItem>
                 <TabItem.Header>
-                    <Label Content="Raw view"></Label>
+                    <Label Content="Signalgram"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
                     <local:RawSoundView x:Name="RawSoundView"></local:RawSoundView>
                 </TabItem.Content>
             </TabItem>
 
-            <TabItem x:Name="SpectrumViewTab">
+            <TabItem>
                 <TabItem.Header>
-                    <Label Content="Spectrum view"></Label>
+                    <Label Content="Fourier frequency-amplitude view"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <local:SpectrumAnalysisView/>
+                    <local:Spectrum2dAnalysisView/>
+                </TabItem.Content>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <Label Content="Spectrum 3d view"></Label>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <local:Spectrum3dAnalysisView/>
                 </TabItem.Content>
             </TabItem>
 

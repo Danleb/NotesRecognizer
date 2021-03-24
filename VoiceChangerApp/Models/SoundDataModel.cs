@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using VoiceChanger.FormatParser;
@@ -25,6 +24,7 @@ namespace VoiceChangerApp.Models
 
         public Subject<string> OnLoadFile = new();
         public Subject<bool> OnSoundTrackLoaded = new();
+        public Subject<bool> OnCommonSignalSpectrumGenerated = new();
         public Subject<Exception> OnException = new();
         public Subject<bool> OnIsLoading = new();
 
@@ -33,11 +33,12 @@ namespace VoiceChangerApp.Models
         #region Data
 
         public AudioContainer AudioContainer { get; private set; }
-        public SpectrumCreator SpectrumCreator { get; private set; }
+        public SpectrumCreatorGPU SpectrumCreator { get; private set; }
         public SpectrumContainer SpectrumContainer => SpectrumCreator.SpectrumContainer;
         public bool IsAudioContainerCreated => AudioContainer != null;
         public bool IsLoadedFromFile { get; private set; }
         public string Path { get; private set; }
+        public SpectrumSlice CommonSignalSpectrum { get; private set; }
 
         #endregion
 
@@ -61,6 +62,27 @@ namespace VoiceChangerApp.Models
             finally
             {
                 OnIsLoading.OnNext(false);
+            }
+        }
+
+        public void GenerateCommonSignalSpectrum()
+        {
+            if (!IsAudioContainerCreated)
+            {
+                return;
+            }
+
+            try
+            {
+                var fft = new FastFourierTransformCPU(AudioContainer);
+                var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
+                CommonSignalSpectrum = fft.CreateSpectrum(0, count);
+                OnCommonSignalSpectrumGenerated.OnNext(true);
+            }
+            catch (Exception e)
+            {
+                OnCommonSignalSpectrumGenerated.OnNext(false);
+                OnException.OnNext(e);
             }
         }
 

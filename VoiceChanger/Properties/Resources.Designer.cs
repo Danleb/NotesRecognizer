@@ -63,6 +63,16 @@ namespace VoiceChanger.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] FastFourierTransformKernel {
+            get {
+                object obj = ResourceManager.GetObject("FastFourierTransformKernel", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] SpectrumKernel {
             get {
                 object obj = ResourceManager.GetObject("SpectrumKernel", resourceCulture);

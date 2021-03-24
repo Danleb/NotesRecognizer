@@ -1,175 +1,50 @@
-﻿using Silk.NET.OpenCL;
-using System;
-using System.Text;
+﻿using System;
 using VoiceChanger.FormatParser;
-using VoiceChanger.Properties;
-using VoiceChanger.Utils;
 
 namespace VoiceChanger.SpectrumCreator
 {
-    public partial class SpectrumCreator
+    public abstract class SpectrumCreator : IDisposable
     {
-        public AudioContainer AudioContainer { get; }
-
-        public SpectrumContainer SpectrumContainer { get; private set; }
-
-        private readonly CL _cl;
-        private nint _platformId;
-        private nint _deviceId;
-        private nint _context;
-        private nint _commandQueue;
-        private nint _program;
+        protected bool _disposed = false;
 
         public SpectrumCreator(AudioContainer audioContainer)
         {
             AudioContainer = audioContainer;
-            _cl = CL.GetApi();
         }
 
         ~SpectrumCreator()
         {
-
+            Dispose(false);
         }
 
-        public unsafe SpectrumContainer CreateSpectrum()
+        public AudioContainer AudioContainer { get; }
+
+        public SpectrumContainer SpectrumContainer { get; protected set; }
+
+        public abstract unsafe SpectrumContainer CreateSpectrum(SpectrumCreatorSettings settings);
+
+        public void Dispose()
         {
-            var res = _cl.GetPlatformIDs(0, null, out var platformsCount);
-            CheckSuccess(res);
-            if (platformsCount == 0)
-            {
-                throw new Exception("OpenCL Platforms not found.");
-            }
-
-            using var platformIDs = new UnmanagedArray<nint>(platformsCount);
-            res = _cl.GetPlatformIDs(platformsCount, platformIDs, out _);
-            CheckSuccess(res);
-            PrintPlatformInfos(platformIDs);
-            _platformId = platformIDs[0];
-
-            res = _cl.GetDeviceIDs(_platformId, CLEnum.DeviceTypeAll, 0, null, out var devicesCount);
-            CheckSuccess(res);
-            if (devicesCount == 0)
-            {
-                throw new Exception("OpenCL Devices not found.");
-            }
-
-            using var deviceIDs = new UnmanagedArray<nint>(devicesCount);
-            res = _cl.GetDeviceIDs(_platformId, CLEnum.DeviceTypeAll, devicesCount, deviceIDs, out _);
-            CheckSuccess(res);
-            PrintDeviceInfos(deviceIDs);
-            _deviceId = deviceIDs[0];
-
-            _context = _cl.CreateContext(null, 1, _deviceId, NotifyCallback, null, out var errorCode);
-            CheckSuccess(errorCode);
-
-            _commandQueue = _cl.CreateCommandQueue(_context, _deviceId, 0, out errorCode);
-            CheckSuccess(errorCode);
-
-            nuint bufferInputElementsCount = 10;
-            nuint bufferKernelInputSize = bufferInputElementsCount * sizeof(float);
-            var bufferKernelInput = _cl.CreateBuffer(_context, CLEnum.MemReadOnly, bufferKernelInputSize, null, out errorCode);
-            CheckSuccess(errorCode);
-
-            nuint bufferOutputElementsCount = 10;
-            nuint bufferKernelOutputSize = bufferOutputElementsCount * sizeof(float);
-            var bufferKernelOutput = _cl.CreateBuffer(_context, CLEnum.MemWriteOnly, bufferKernelOutputSize, null, out errorCode);
-            CheckSuccess(errorCode);
-
-            var inputHostBuffer = new UnmanagedArray<float>(bufferInputElementsCount);
-            inputHostBuffer[0] = 6;
-            inputHostBuffer[1] = 8;
-            _cl.EnqueueWriteBuffer(_commandQueue, bufferKernelInput, true, 0, bufferKernelInputSize, inputHostBuffer, 0, 0, out var @event);
-
-            fixed (byte* kernelSource = Resources.SpectrumKernel)
-            {
-                _program = _cl.CreateProgramWithSource(_context, 1, kernelSource, (nuint)Resources.SpectrumKernel.Length, out errorCode);
-                CheckSuccess(errorCode);
-            }
-
-            res = _cl.BuildProgram(_program, 1, _deviceId, 0, NotifyCallback, null);
-            CheckSuccess(res);
-
-            var kernel = _cl.CreateKernel(_program, "ComputeSpectrum", out errorCode);
-            CheckSuccess(errorCode);
-
-            res = _cl.SetKernelArg(kernel, 0, (nuint)sizeof(nuint), bufferKernelInput);
-            CheckSuccess(res);
-            res = _cl.SetKernelArg(kernel, 1, (nuint)sizeof(nuint), bufferKernelOutput);
-            CheckSuccess(res);
-
-            //var globalWorkSize = new UnmanagedArray<nuint>(3)
-            //{
-            //    bufferInputElementsCount, 0, 0
-            //};
-            var localWorkSize = new UnmanagedArray<nuint>(3)
-            {
-                1, 1, 1
-            };
-            res = _cl.EnqueueNdrangeKernel(_commandQueue, kernel, 1, 0, bufferInputElementsCount, localWorkSize, 0, null, out var calculateEvent);
-            CheckSuccess(res);
-
-            _cl.Finish(_commandQueue);
-
-            var outputHostBuffer = new UnmanagedArray<float>(bufferKernelOutputSize / sizeof(float));
-            res = _cl.EnqueueReadBuffer(_commandQueue, bufferKernelOutput, true, 0, bufferKernelOutputSize, outputHostBuffer, 0, null, out @event);
-            CheckSuccess(res);
-
-            SpectrumContainer = new SpectrumContainer();
-
-            var x = outputHostBuffer[0];
-
-            _cl.Flush(_commandQueue);
-            _cl.Finish(_commandQueue);
-            _cl.ReleaseMemObject(bufferKernelInput);
-            _cl.ReleaseMemObject(bufferKernelOutput);
-            _cl.ReleaseKernel(kernel);
-            _cl.ReleaseProgram(_program);
-            _cl.ReleaseCommandQueue(_commandQueue);
-            _cl.ReleaseContext(_context);
-
-            return SpectrumContainer;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        private unsafe void PrintDeviceInfos(UnmanagedArray<IntPtr> deviceIDs)
+        protected virtual void Dispose(bool disposing)
         {
-            foreach (var deviceId in deviceIDs)
+            if (_disposed)
             {
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceAddressBits, 0, null, out var size1);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceAvailable, 0, null, out var size2);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceCompilerAvailable, 0, null, out var size3);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceDoubleFPConfig, 0, null, out var size4);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceEndianLittle, 0, null, out var size5);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceErrorCorrectionSupport, 0, null, out var size6);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceExecutionCapabilities, 0, null, out var size7);
-                _cl.GetDeviceInfo(deviceId, (uint)CLEnum.DeviceExtensions, 0, null, out var size8);
+                return;
             }
-        }
 
-        private unsafe void PrintPlatformInfos(UnmanagedArray<IntPtr> platformIDs)
-        {
-            foreach (var platformId in platformIDs)
+            if (disposing)
             {
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformProfile, 0, null, out var size1);
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformVersion, 0, null, out var size2);
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformName, 0, null, out var size3);
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformVendor, 0, null, out var size4);
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformExtensions, 0, null, out var size5);
-                _cl.GetPlatformInfo(platformId, (uint)CLEnum.PlatformHostTimerResolution, 0, null, out var size6);
+                // TODO: dispose managed state (managed objects).
             }
-        }
 
-        private unsafe void NotifyCallback(byte* errinfo, void* privateInfo, nuint cb, void* userData)
-        {
-            var errorString = Encoding.ASCII.GetString(errinfo, 20);
-            Console.WriteLine(errorString);
-        }
+            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+            // TODO: set large fields to null.
 
-        private void CheckSuccess(int result)
-        {
-            if (result != (int)CLEnum.Success)
-            {
-                throw new Exception("Operation result was not CL_SUCCESS. Error name: " + ((CLEnum)result).ToString());
-            }
+            _disposed = true;
         }
     }
 }

@@ -5,20 +5,20 @@ namespace VoiceChanger.FormatParser
 {
     public class AudioContainer
     {
-        public AudioContainer(float duration, int sampleRate, int[] data)
+        public AudioContainer(float duration, int sampleRate, float[] samples)
         {
             Duration = duration;
             SampleRate = sampleRate;
-            Data = data;
+            Samples = samples;
 
-            var sampleRateCalculated = data.Length / duration;
+            var sampleRateCalculated = samples.Length / duration;
             if (sampleRateCalculated != sampleRate)
             {
                 throw new Exception();
             }
 
-            Max = Data.Max();
-            Min = Data.Min();
+            Max = Samples.Max();
+            Min = Samples.Min();
         }
 
         public float Duration { get; private set; }
@@ -28,11 +28,11 @@ namespace VoiceChanger.FormatParser
         /// </summary>
         public int SampleRate { get; private set; }
 
-        public int[] Data { get; private set; }
+        public float[] Samples { get; private set; }
 
-        public int ValuesCount => Data.Length;
+        public int SamplesCount => Samples.Length;
 
-        public int Max { get; }
-        public int Min { get; }
+        public float Max { get; }
+        public float Min { get; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using SharpGL;
+using SharpGL.WPF;
 using System;
+using System.Reflection;
 using System.Text;
 
 namespace VoiceChangerApp.Utils
@@ -70,6 +72,12 @@ namespace VoiceChangerApp.Utils
 
                 throw new Exception($"OpenGL error: {errorCode}");
             }
+        }
+
+        public static void ForceRedraw(this OpenGLControl openGLControl)
+        {
+            MethodInfo methodInfo = openGLControl.GetType().GetMethod("UpdateOpenGLControl", BindingFlags.NonPublic | BindingFlags.Instance);
+            methodInfo.Invoke(openGLControl, new object[] { (int)openGLControl.ActualWidth, (int)openGLControl.ActualHeight });
         }
     }
 }

@@ -63,6 +63,26 @@ namespace VoiceChangerApp {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] AmplitudeSpectrogram_frag {
+            get {
+                object obj = ResourceManager.GetObject("AmplitudeSpectrogram_frag", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Image_vert {
+            get {
+                object obj = ResourceManager.GetObject("Image_vert", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Pass_vert {
             get {
                 object obj = ResourceManager.GetObject("Pass_vert", resourceCulture);

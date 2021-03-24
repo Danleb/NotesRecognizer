@@ -18,11 +18,6 @@ namespace VoiceChangerApp.ViewModels
         public RawSoundViewModel(SoundDataModel soundDataModel)
         {
             SoundDataModel = soundDataModel;
-
-            var sc2 = SynchronizationContext.Current;
-            var sc = FileInfoViewModel.sc;
-            var eq = sc == sc2;
-
             SoundDataModel.OnSoundTrackLoaded
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(OnSoundTrackLoaded);

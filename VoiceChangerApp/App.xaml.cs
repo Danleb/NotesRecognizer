@@ -24,7 +24,7 @@ namespace VoiceChangerApp
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
-            containerRegistry.Register<FileInfoViewModel, FileInfoViewModel>();
+            containerRegistry.Register<DataSourceViewModel, DataSourceViewModel>();
             containerRegistry.Register<EditorWindowViewModel, EditorWindowViewModel>();
             containerRegistry.Register<RawSoundViewModel, RawSoundViewModel>();
 
