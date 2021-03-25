@@ -18,14 +18,14 @@ namespace VoiceChangerApp.ViewModels
         public RawSoundViewModel(SoundDataModel soundDataModel)
         {
             SoundDataModel = soundDataModel;
-            SoundDataModel.OnSoundTrackLoaded
+            SoundDataModel.OnSampleLoaded
                 .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(OnSoundTrackLoaded);
+                .Subscribe(OnSampleLoaded);
 
-            OnSoundTrackLoaded(SoundDataModel.IsAudioContainerCreated);
+            OnSampleLoaded(SoundDataModel.IsAudioContainerCreated);
         }
 
-        private void OnSoundTrackLoaded(bool success)
+        private void OnSampleLoaded(bool success)
         {
             AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
         }

@@ -49,16 +49,14 @@ namespace VoiceChangerApp.Views.SoundViews
         private BoundSquare _boundSquare;
         private PlotNavigator _plotNavigator;
         private float[] _colorValues = new float[4];
+        private CoordinateGridDrawer _coordinateGridDrawer;
 
         public SignalgramView()
         {
             InitializeComponent();
             UpdateRenderingContext();
             _gl = OpenGLControl.OpenGL;
-            _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));            
-            //OpenGLControl.RenderContextType = RenderContextType.HiddenWindow;
-            //OpenGLControl.RenderContextType = RenderContextType.FBO;
-            //OpenGLControl.RenderTrigger = RenderTrigger.Manual;
+            _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
         }
 
         [Bindable(true)]
@@ -93,17 +91,8 @@ namespace VoiceChangerApp.Views.SoundViews
             set => SetValue(LineColorProperty, value);
         }
 
-        public override OpenGL OpenGL => MainOpenGLControl.OpenGL;
+        public override OpenGL GL => MainOpenGLControl.OpenGL;
         public override OpenGLControl OpenGLControl => MainOpenGLControl;
-
-        public void SetActiveRenderState(bool isSelected)
-        {
-            OpenGLControl.RenderContextType = isSelected ? RenderContextType.FBO : RenderContextType.HiddenWindow;
-            if (isSelected)
-            {
-                //OpenGLControl.RenderTrigger = RenderTrigger.TimerBased;
-            }
-        }
 
         public void ResetView()
         {
@@ -171,6 +160,8 @@ namespace VoiceChangerApp.Views.SoundViews
             _viewport.Right = 0.5f;
             _viewport.UpdateMatrix();
 
+            _coordinateGridDrawer.Viewport = _viewport;
+
             if (_plotNavigator == null)
             {
                 _plotNavigator = new PlotNavigator(OpenGLControl, _viewport, _boundSquare, this);
@@ -208,6 +199,15 @@ namespace VoiceChangerApp.Views.SoundViews
             return _program != OpenGLUtils.NO_PROGRAM && _linesVBO != OpenGLUtils.NO_BUFFER;
         }
 
+        private void CheckAndInitStaticData()
+        {
+            CheckAndInitProgram();
+            if (_coordinateGridDrawer == null)
+            {
+                _coordinateGridDrawer = new CoordinateGridDrawer(GL);
+            }
+        }
+
         private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs args)
         {
             if (!IsRendering())
@@ -219,7 +219,7 @@ namespace VoiceChangerApp.Views.SoundViews
             //    return;
             //}
 
-            CheckAndInitProgram();
+            CheckAndInitStaticData();
             CheckAndInitAudioData();
 
             if (!IsGLInitialized())
@@ -239,6 +239,8 @@ namespace VoiceChangerApp.Views.SoundViews
             }
 
             _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
+
+            _coordinateGridDrawer.Render();
 
             _gl.UseProgram(_program);
             _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);

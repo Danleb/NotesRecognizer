@@ -3,5 +3,6 @@
     public interface IRenderable
     {
         void RequestRedraw();
+        //void Render();
     }
 }

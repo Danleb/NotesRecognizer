@@ -1,4 +1,5 @@
-﻿using SharpGL;
+﻿using Microsoft.Extensions.Logging;
+using SharpGL;
 using SharpGL.WPF;
 using System.Windows.Controls;
 using VoiceChangerApp.Utils;
@@ -7,6 +8,8 @@ namespace VoiceChangerApp.Views.SoundViews
 {
     public abstract class BaseOpenGLRender : UserControl, IEnable, IRenderable
     {
+        protected readonly uint[] _bufferTemp = new uint[10];
+        protected ILogger _logger;
         protected bool _isNeedRedraw;
 
         public BaseOpenGLRender()
@@ -20,7 +23,7 @@ namespace VoiceChangerApp.Views.SoundViews
             LayoutUpdated += BaseOpenGLRender_LayoutUpdated;
         }
 
-        public abstract OpenGL OpenGL { get; }
+        public abstract OpenGL GL { get; }
         public abstract OpenGLControl OpenGLControl { get; }
 
         public bool IsRendering()

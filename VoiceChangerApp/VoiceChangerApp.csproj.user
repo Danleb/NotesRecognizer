@@ -7,7 +7,7 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Views\DataSourceView.xaml.cs">
+    <Compile Update="Views\DataSourceViews\DataSourceView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\DataSourceViews\RecordingSoundView.xaml.cs">
@@ -39,9 +39,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Styles\Styles.xaml">
+    <Resource Update="Styles\Styles.xaml">
       <SubType>Designer</SubType>
-    </Page>
+    </Resource>
     <Page Update="Views\DataSourceViews\RecordingSoundView.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -51,7 +51,7 @@
     <Page Update="Views\EditorWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\DataSourceView.xaml">
+    <Page Update="Views\DataSourceViews\DataSourceView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RawSoundView.xaml">

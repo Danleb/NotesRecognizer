@@ -25,7 +25,7 @@
                     <Label Content="Is spectrum calculated:" Style="{StaticResource BoldLabel}"/>
                     <Label Content="{Binding IsSpectrumGenerated}"/>
                 </StackPanel>
-                <Button Margin="5" Content="Generate signal common spectrum" Command="{Binding GenerateSpectrum2dCommand}" HorizontalAlignment="Left"/>
+                <Button Margin="5" Content="Generate signal common spectrum" Command="{Binding CalculateSpectrum2dCommand}" HorizontalAlignment="Left"/>
             </StackPanel>
 
             <soundViews:Spectrum2dRenderView x:Name="Spectrum2dRenderView" SpectrumSlice="{Binding CommonSignalSpectrum}"/>

@@ -51,10 +51,10 @@ namespace VoiceChanger.SpectrumCreator
             //Complex* pWN;
             W = new Complex();
 
-            uint elementsCount = 1u << T;//number of items in array
+            uint Nmax = 1u << T;//number of items in array
 
             //first interchanging
-            for (I = 1; I < elementsCount - 1; I++)
+            for (I = 1; I < Nmax - 1; I++)
             {
                 Jc[0] = Reverse256[Ic[3]];
                 Jc[1] = Reverse256[Ic[2]];
@@ -70,13 +70,13 @@ namespace VoiceChanger.SpectrumCreator
             }
 
             //rotation multiplier array allocation
-            Wstore = new Complex[elementsCount / 2];
+            Wstore = new Complex[Nmax / 2];
             Wstore[0] = new Complex(1.0, 0.0);
 
             int pWN_Index;
 
             //main loop
-            for (N = 2, Nd2 = 1, pWN_Index = 0/*pWN = W2n*/, Skew = elementsCount >> 1; N <= elementsCount; Nd2 = N, N += N, /*pWN++*/pWN_Index++, Skew >>= 1)
+            for (N = 2, Nd2 = 1, pWN_Index = 0/*pWN = W2n*/, Skew = Nmax >> 1; N <= Nmax; Nd2 = N, N += N, /*pWN++*/pWN_Index++, Skew >>= 1)
             {
                 //WN = W(1, N) = exp(-2*pi*j/N)
                 //WN = *pWN;
@@ -102,7 +102,7 @@ namespace VoiceChanger.SpectrumCreator
                         W = Wstore[Warray_Index];
                     }
 
-                    for (m = k; m < elementsCount; m += N)
+                    for (m = k; m < Nmax; m += N)
                     {
                         mpNd2 = m + Nd2;
                         Temp = W;
@@ -115,7 +115,7 @@ namespace VoiceChanger.SpectrumCreator
             }
 
             var list = new List<FrequencyAmplitudeData>();
-            for (var i = 0; i < elementsCount; i++)
+            for (var i = 0; i < Nmax; i++)
             {
                 var complex = x[i];
                 var amplitude = (float)Math.Sqrt(complex.Real * complex.Real + complex.Imaginary * complex.Imaginary);
@@ -177,9 +177,10 @@ namespace VoiceChanger.SpectrumCreator
         //This is array exp(-2*pi*j/2^n) for n= 1,...,32
         //exp(-2*pi*j/2^n) = Complex( cos(2*pi/2^n), -sin(2*pi/2^n) )
         private static Complex[] W2n = {
-            new Complex(-1.00000000000000000000000000000000,  0.00000000000000000000000000000000), // W2 calculator (copy/paste) : po, ps    new Complex( 0.00000000000000000000000000000000, -1.00000000000000000000000000000000), // W4: p/2=o, p/2=s
+            new Complex(-1.00000000000000000000000000000000,  0.00000000000000000000000000000000), // W2 calculator (copy/paste) : po, ps
+            new Complex( 0.00000000000000000000000000000000, -1.00000000000000000000000000000000), // W4: p/2=o, p/2=s
             new Complex( 0.70710678118654752440084436210485, -0.70710678118654752440084436210485), // W8: p/4=o, p/4=s
-            new Complex( 0.92387953251128675612818318939679, -0.38268343236508977172845998403040), // p/8=o, p/8=s
+            new Complex(0.92387953251128675612818318939679, -0.38268343236508977172845998403040), // p/8=o, p/8=s
             new Complex(0.98078528040323044912618223613424, -0.19509032201612826784828486847702), // p/16=
             new Complex(0.99518472667219688624483695310948, -9.80171403295606019941955638886e-2), // p/32=
             new Complex(0.99879545620517239271477160475910, -4.90676743274180142549549769426e-2), // p/64=
@@ -190,7 +191,7 @@ namespace VoiceChanger.SpectrumCreator
             new Complex(0.99999882345170190992902571017153, -1.53398018628476561230369715026e-3), // p/(2y11)=
             new Complex(0.99999970586288221916022821773877, -7.66990318742704526938568357948e-4), // p/(2y12)=
             new Complex(0.99999992646571785114473148070739, -3.83495187571395589072461681181e-4), // p/(2y13)=
-            new Complex(0.99999998161642929380834691540291, -1.91747597310703307439909561989e-4), // p/(2y14)=
+            new Complex( 0.99999998161642929380834691540291, -1.91747597310703307439909561989e-4), // p/(2y14)=
             new Complex(0.99999999540410731289097193313961, -9.58737990959773458705172109764e-5), // p/(2y15)=
             new Complex(0.99999999885102682756267330779455, -4.79368996030668845490039904946e-5), // p/(2y16)=
             new Complex(0.99999999971275670684941397221864, -2.39684498084182187291865771650e-5), // p/(2y17)=
@@ -198,7 +199,7 @@ namespace VoiceChanger.SpectrumCreator
             new Complex(0.99999999998204729417728262414778, -5.99211245264242784287971180889e-6), // p/(2y19)=
             new Complex(0.99999999999551182354431058417300, -2.99605622633466075045481280835e-6), // p/(2y20)=
             new Complex(0.99999999999887795588607701655175, -1.49802811316901122885427884615e-6), // p/(2y21)=
-            new Complex(0.99999999999971948897151921479472, -7.49014056584715721130498566730e-7), // p/(2y22)=
+            new Complex( 0.99999999999971948897151921479472, -7.49014056584715721130498566730e-7), // p/(2y22)=
             new Complex(0.99999999999992987224287980123973, -3.74507028292384123903169179084e-7), // p/(2y23)=
             new Complex(0.99999999999998246806071995015625, -1.87253514146195344868824576593e-7), // p/(2y24)=
             new Complex(0.99999999999999561701517998752946, -9.36267570730980827990672866808e-8), // p/(2y25)=

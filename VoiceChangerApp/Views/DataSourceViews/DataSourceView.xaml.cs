@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace VoiceChangerApp.Views
+namespace VoiceChangerApp.Views.DataSourceViews
 {
     public partial class DataSourceView : UserControl
     {

@@ -5,20 +5,62 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:vr="clr-namespace:VoiceChangerApp.Views.ValidationRules"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DataContext="{d:DesignInstance {x:Type vm:SoundGenerationViewModel}, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid Background="White">
         <StackPanel Orientation="Vertical">
             <Label Margin="5" Content="Samples generation"/>
-            <Label Content="Frequency:"/>
-            <TextBox Margin="5"/>
-            <Label Content="Duration"/>
-            <TextBox Margin="5"/>
-            <Button Margin="5" Content="Generate and load"/>
-            <Button Margin="5" Content="Save current sample"/>
+
+            <Label Content="Signal angular frequency, Hz:"/>
+            <TextBox Style="{StaticResource TextBoxValidating}">
+                <TextBox.Text>
+                    <Binding Path="SignalFrequency" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <vr:PositiveIntValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="Duration, seconds:"/>
+            <TextBox Style="{StaticResource TextBoxValidating}">
+                <TextBox.Text>
+                    <Binding Path="Duration" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <vr:PositiveNumberValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="Sample rate, Hz:"/>
+            <TextBox Style="{StaticResource TextBoxValidating}">
+                <TextBox.Text>
+                    <Binding Path="SampleRate" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <vr:PositiveNumberValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="State:"/>
+            <Label Content="{Binding GenerationState}"/>
+
+            <Button Command="{Binding GenerateSample}" Margin="5" Content="Generate and load"/>
+            <!--<Button Margin="5" Content="Load generated sample to analysis"/>-->
+            <Button Command="{Binding SaveToFile}" Margin="5" Content="Save current sample to file"/>
         </StackPanel>
     </Grid>
 </UserControl>

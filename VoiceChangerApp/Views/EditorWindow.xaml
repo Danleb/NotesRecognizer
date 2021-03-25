@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VoiceChangerApp.Views"
         xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+        xmlns:dataViews="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         mc:Ignorable="d"
@@ -21,13 +22,13 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="1">
+        <TabControl x:Name="TabControl" SelectedIndex="1">
             <TabItem>
                 <TabItem.Header>
                     <Label Content="Data source"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <local:DataSourceView></local:DataSourceView>
+                    <dataViews:DataSourceView></dataViews:DataSourceView>
                 </TabItem.Content>
             </TabItem>
 

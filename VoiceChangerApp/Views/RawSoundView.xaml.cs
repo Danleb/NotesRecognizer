@@ -8,10 +8,5 @@ namespace VoiceChangerApp.Views
         {
             InitializeComponent();
         }
-
-        public void SetSelected(bool isSelected)
-        {
-            SignalgramView.SetActiveRenderState(isSelected);
-        }
     }
 }

@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="VoiceChangerApp.Views.DataSourceView"
+﻿<UserControl x:Class="VoiceChangerApp.Views.DataSourceViews.DataSourceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VoiceChangerApp.Views"
+             xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
@@ -19,12 +19,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Background="White">
-        <StackPanel Orientation="Horizontal">
+        <DockPanel>
             <StackPanel Orientation="Vertical">
                 <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Sample data source: " Style="{DynamicResource BoldLabel}"/>
-                    <Label Content="From File/Generated/Recorded"></Label>
+                    <Label Content="{Binding SoundSource}"></Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="File path: " Style="{DynamicResource BoldLabel}"/>
@@ -44,17 +44,32 @@
                 </StackPanel>
             </StackPanel>
             <TabControl>
-                
+                <TabItem>
+                    <TabItem.Header>
+                        <Label Content="File"/>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <StackPanel>
+                            <Label Margin="5" Content="Current work folder:"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Margin="5" Width="100"></TextBox>
+                                <Button Margin="5" Content="Select"/>
+                            </StackPanel>
+                            <Button Content="Load selected file" Margin="5"/>
+                            <ListBox Margin="5"/>
+                        </StackPanel>
+                    </TabItem.Content>
+                </TabItem>
+
+                <TabItem>
+                    <TabItem.Header>
+                        <Label Content="Sound generation"/>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <local:SoundGenerationView/>
+                    </TabItem.Content>
+                </TabItem>
             </TabControl>
-            <StackPanel>
-                <Label Margin="5" Content="Current work folder:"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBox Margin="5" Width="100"></TextBox>
-                    <Button Margin="5" Content="Select"/>
-                </StackPanel>
-                <Button Content="Load selected file" Margin="5"/>
-                <ListBox Margin="5"/>
-            </StackPanel>
-        </StackPanel>
+        </DockPanel>
     </Grid>
 </UserControl>

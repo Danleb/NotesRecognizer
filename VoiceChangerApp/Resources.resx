@@ -121,6 +121,12 @@
   <data name="AmplitudeSpectrogram_frag" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Shaders\AmplitudeSpectrogram.frag.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="CoordinateGrid_frag" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Shaders\CoordinateGrid.frag.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="CoordinateGrid_vert" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Shaders\CoordinateGrid.vert.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Image_vert" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Shaders\Image.vert.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

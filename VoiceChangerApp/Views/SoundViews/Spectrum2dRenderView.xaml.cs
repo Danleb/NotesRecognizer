@@ -5,13 +5,14 @@ using SharpGL.WPF;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 using VoiceChanger.SpectrumCreator;
 using VoiceChangerApp.Utils;
 using AppResources = VoiceChangerApp.Resources;
 
 namespace VoiceChangerApp.Views.SoundViews
 {
-    public partial class Spectrum2dRenderView : BaseOpenGLRender, IRenderable
+    public partial class Spectrum2dRenderView : BaseOpenGLRender
     {
         public static readonly DependencyProperty SpectrumSliceProperty = DependencyProperty.Register(
             nameof(SpectrumSlice),
@@ -23,21 +24,7 @@ namespace VoiceChangerApp.Views.SoundViews
                 view.InitializeSpectrumSliceBuffer();
             }));
 
-        private static readonly float[] QuadVertexBuffer =
-        {
-            -1.0f, -1.0f, 0, 0,
-            1.0f, -1.0f, 1, 0,
-            -1.0f, 1.0f, 0, 1,
-
-            1.0f, 1.0f, 1, 1,
-            -1.0f, 1.0f, 0, 1,
-            1.0f, -1.0f, 1, 0,
-        };
-
-        private readonly ILogger _logger;
-        private readonly uint[] _bufferTemp = new uint[10];
         private readonly BoundSquare _boundSquare = new(-1.0f, 1.0f, -1.0f, 1.0f);
-        private OpenGL _gl;
         private uint _program = OpenGLUtils.NO_PROGRAM;
         private uint _vbo = OpenGLUtils.NO_BUFFER;
         private uint _vao = OpenGLUtils.NO_BUFFER;
@@ -49,6 +36,7 @@ namespace VoiceChangerApp.Views.SoundViews
         private int _minAmplitudeLocation = -1;
         private int _maxAmplitudeLocation = -1;
         private int _mvpMatrixLocation = -1;
+        private int _mousePositionLocation = -1;
         private OrthographicViewportMatrix _viewport;
         private PlotNavigator _navigator;
 
@@ -56,7 +44,6 @@ namespace VoiceChangerApp.Views.SoundViews
         {
             InitializeComponent();
             UpdateRenderingContext();
-            _gl = OpenGLControl.OpenGL;//todo remove
             _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
         }
 
@@ -71,7 +58,7 @@ namespace VoiceChangerApp.Views.SoundViews
             }
         }
 
-        public override OpenGL OpenGL => MainOpenGLControl.OpenGL;
+        public override OpenGL GL => MainOpenGLControl.OpenGL;
 
         public override OpenGLControl OpenGLControl => MainOpenGLControl;
 
@@ -85,21 +72,21 @@ namespace VoiceChangerApp.Views.SoundViews
             if (_amplitudeBuffer != OpenGLUtils.NO_BUFFER)
             {
                 _bufferTemp[0] = _amplitudeBuffer;
-                _gl.DeleteBuffers(1, _bufferTemp);
+                GL.DeleteBuffers(1, _bufferTemp);
                 _amplitudeBuffer = OpenGLUtils.NO_BUFFER;
             }
 
-            _gl.GenBuffers(1, _bufferTemp);
+            GL.GenBuffers(1, _bufferTemp);
             _amplitudeBuffer = _bufferTemp[0];
-            _gl.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _amplitudeBuffer);
+            GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _amplitudeBuffer);
             float[] amplitudes = new float[SpectrumSlice.Datas.Count];
             for (int i = 0; i < amplitudes.Length; i++)
             {
                 amplitudes[i] = SpectrumSlice.Datas[i].Amplitude;
             }
-            _gl.BufferData(OpenGL.GL_SHADER_STORAGE_BUFFER, amplitudes, OpenGL.GL_STATIC_DRAW);
-            _gl.BindBufferBase(OpenGL.GL_SHADER_STORAGE_BUFFER, 0, _amplitudeBuffer);
-            _gl.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, OpenGLUtils.NO_BUFFER);
+            GL.BufferData(OpenGL.GL_SHADER_STORAGE_BUFFER, amplitudes, OpenGL.GL_STATIC_DRAW);
+            GL.BindBufferBase(OpenGL.GL_SHADER_STORAGE_BUFFER, 0, _amplitudeBuffer);
+            GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, OpenGLUtils.NO_BUFFER);
 
             _startFrequencyElementIndex = 0;
             _endFrequencyElementIndex = SpectrumSlice.FrequencyDataCount - 1;
@@ -131,12 +118,13 @@ namespace VoiceChangerApp.Views.SoundViews
 
             try
             {
-                _program = _gl.CompileProgram(AppResources.Image_vert, AppResources.AmplitudeSpectrogram_frag);
-                _startFrequencyElementIndexLocation = _gl.GetUniformLocation(_program, "startFrequencyElementIndex");
-                _endFrequencyElementIndexLocation = _gl.GetUniformLocation(_program, "endFrequencyElementIndex");
-                _minAmplitudeLocation = _gl.GetUniformLocation(_program, "minAmplitude");
-                _maxAmplitudeLocation = _gl.GetUniformLocation(_program, "maxAmplitude");
-                _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
+                _program = GL.CompileProgram(AppResources.Image_vert, AppResources.AmplitudeSpectrogram_frag);
+                _startFrequencyElementIndexLocation = GL.GetUniformLocation(_program, "startFrequencyElementIndex");
+                _endFrequencyElementIndexLocation = GL.GetUniformLocation(_program, "endFrequencyElementIndex");
+                _minAmplitudeLocation = GL.GetUniformLocation(_program, "minAmplitude");
+                _maxAmplitudeLocation = GL.GetUniformLocation(_program, "maxAmplitude");
+                _mvpMatrixLocation = GL.GetUniformLocation(_program, "MVP");
+                _mousePositionLocation = GL.GetUniformLocation(_program, "mousePosition");
                 return true;
             }
             catch (Exception exception)
@@ -163,28 +151,28 @@ namespace VoiceChangerApp.Views.SoundViews
                 return true;
             }
 
-            _gl.GenBuffers(1, _bufferTemp);
+            GL.GenBuffers(1, _bufferTemp);
             _vbo = _bufferTemp[0];
-            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
-            _gl.BufferData(OpenGL.GL_ARRAY_BUFFER, QuadVertexBuffer, OpenGL.GL_STATIC_DRAW);
+            GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
+            GL.BufferData(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.QuadVertexBuffer, OpenGL.GL_STATIC_DRAW);
 
-            _gl.GenVertexArrays(1, _bufferTemp);
+            GL.GenVertexArrays(1, _bufferTemp);
             _vao = _bufferTemp[0];
-            _gl.BindVertexArray(_vao);
-            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
+            GL.BindVertexArray(_vao);
+            GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
 
             var stride = sizeof(float) * 4;
 
-            int positionAttribute = _gl.GetAttribLocation(_program, "position");
-            _gl.VertexAttribPointer((uint)positionAttribute, 2, OpenGL.GL_FLOAT, false, stride, IntPtr.Zero);
-            _gl.EnableVertexAttribArray((uint)positionAttribute);
+            int positionAttribute = GL.GetAttribLocation(_program, "position");
+            GL.VertexAttribPointer((uint)positionAttribute, 2, OpenGL.GL_FLOAT, false, stride, IntPtr.Zero);
+            GL.EnableVertexAttribArray((uint)positionAttribute);
 
-            int texCoordAttribute = _gl.GetAttribLocation(_program, "texCoord");
-            _gl.VertexAttribPointer((uint)texCoordAttribute, 2, OpenGL.GL_FLOAT, false, stride, new IntPtr(2 * sizeof(float)));
-            _gl.EnableVertexAttribArray((uint)texCoordAttribute);
+            int texCoordAttribute = GL.GetAttribLocation(_program, "texCoord");
+            GL.VertexAttribPointer((uint)texCoordAttribute, 2, OpenGL.GL_FLOAT, false, stride, new IntPtr(2 * sizeof(float)));
+            GL.EnableVertexAttribArray((uint)texCoordAttribute);
 
-            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
-            _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
+            GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
+            GL.BindVertexArray(OpenGLUtils.NO_BUFFER);
 
             return true;
         }
@@ -215,26 +203,38 @@ namespace VoiceChangerApp.Views.SoundViews
             }
             _isNeedRedraw = false;
 
-            _gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
+            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
 
-            _gl.UseProgram(_program);
-            _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);
-            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
-            _gl.BindVertexArray(_vao);
+            GL.UseProgram(_program);
+            GL.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);
+            GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
+            GL.BindVertexArray(_vao);
 
-            _gl.Uniform1(_startFrequencyElementIndexLocation, _startFrequencyElementIndex);
-            _gl.Uniform1(_endFrequencyElementIndexLocation, _endFrequencyElementIndex);
-            _gl.Uniform1(_minAmplitudeLocation, SpectrumSlice.MinAmplitude);
-            _gl.Uniform1(_maxAmplitudeLocation, SpectrumSlice.MaxAmplitude);
-            _gl.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _amplitudeBuffer);
+            if (OpenGLControl.IsMouseOver)
+            {
+                var point = Mouse.GetPosition(OpenGLControl);
+                point = new Point((point.X / OpenGLControl.ActualWidth) * 2 - 1.0, (1.0 - point.Y / OpenGLControl.ActualHeight) * 2 - 1.0);
+                _logger.LogError("X=" + point.X);
+                GL.Uniform2(_mousePositionLocation, (float)point.X, (float)point.Y);
+            }
+            else
+            {
+                GL.Uniform2(_mousePositionLocation, -10.0f, -10.0f);
+            }
 
-            _gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 6);
+            GL.Uniform1(_startFrequencyElementIndexLocation, _startFrequencyElementIndex);
+            GL.Uniform1(_endFrequencyElementIndexLocation, _endFrequencyElementIndex);
+            GL.Uniform1(_minAmplitudeLocation, SpectrumSlice.MinAmplitude);
+            GL.Uniform1(_maxAmplitudeLocation, SpectrumSlice.MaxAmplitude);
+            GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _amplitudeBuffer);
 
-            _gl.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, OpenGLUtils.NO_BUFFER);
-            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
-            _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
-            _gl.UseProgram(OpenGLUtils.NO_PROGRAM);
+            GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, 6);
+
+            GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, OpenGLUtils.NO_BUFFER);
+            GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
+            GL.BindVertexArray(OpenGLUtils.NO_BUFFER);
+            GL.UseProgram(OpenGLUtils.NO_PROGRAM);
         }
 
         private void OpenGLControl_Resized(object sender, SharpGL.WPF.OpenGLRoutedEventArgs args)

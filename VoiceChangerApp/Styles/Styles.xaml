@@ -3,4 +3,27 @@
     <Style x:Key="BoldLabel" TargetType="Label">
         <Setter Property="FontWeight" Value="Bold"/>
     </Style>
+
+    <ControlTemplate x:Key="ValidationFailed">
+        <StackPanel Orientation="Horizontal">
+            <Border BorderBrush="Red" BorderThickness="2">
+                <AdornedElementPlaceholder Name="AdornedElementPlaceholder"></AdornedElementPlaceholder>
+            </Border>
+            <Image Margin="2" Stretch="Fill" Source="../Resources/ErrorIcon.png" Height="{Binding ElementName=AdornedElementPlaceholder, Path=ActualHeight}" ToolTip="{Binding Path=/ErrorContent}"></Image>
+        </StackPanel>
+    </ControlTemplate>
+
+    <Style x:Key="TextBoxValidating" TargetType="TextBox">
+        <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ValidationFailed}"></Setter>
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="Margin" Value="5,0,20,0"></Setter>
+    </Style>
+
+    <ControlTemplate x:Key="TextBoxTemplate" TargetType="TextBox">
+        <TextBox Style="{StaticResource TextBoxValidating}">
+        <!--<TextBox Validation.Error="OnTextBoxValidationError" Style="{StaticResource TextBoxStyle}">-->
+        </TextBox>
+    </ControlTemplate>
 </ResourceDictionary>

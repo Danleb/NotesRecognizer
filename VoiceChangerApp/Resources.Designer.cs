@@ -73,6 +73,26 @@ namespace VoiceChangerApp {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] CoordinateGrid_frag {
+            get {
+                object obj = ResourceManager.GetObject("CoordinateGrid_frag", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CoordinateGrid_vert {
+            get {
+                object obj = ResourceManager.GetObject("CoordinateGrid_vert", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Image_vert {
             get {
                 object obj = ResourceManager.GetObject("Image_vert", resourceCulture);

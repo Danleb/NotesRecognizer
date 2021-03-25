@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Prism.Ioc;
+using Prism.Mvvm;
 using Prism.Unity;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Unity;
@@ -10,6 +12,7 @@ using Unity.Lifetime;
 using VoiceChangerApp.Models;
 using VoiceChangerApp.ViewModels;
 using VoiceChangerApp.Views;
+using VoiceChangerApp.Views.DataSourceViews;
 
 namespace VoiceChangerApp
 {
@@ -24,14 +27,23 @@ namespace VoiceChangerApp
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
+
             containerRegistry.Register<DataSourceViewModel, DataSourceViewModel>();
             containerRegistry.Register<EditorWindowViewModel, EditorWindowViewModel>();
             containerRegistry.Register<RawSoundViewModel, RawSoundViewModel>();
 
+            ViewModelLocationProvider.Register(typeof(DataSourceView).ToString(), typeof(DataSourceViewModel));
+            ViewModelLocationProvider.Register(typeof(SoundGenerationView).ToString(), typeof(SoundGenerationViewModel));
+
+            RegisterGenericLogger(containerRegistry);
+        }
+
+        private static void RegisterGenericLogger(IContainerRegistry containerRegistry)
+        {
             var container = (UnityContainer)containerRegistry.GetContainer();
             var loggerFactory = LoggerFactory.Create(builder => builder.AddNLog());
             var factoryMethod = typeof(LoggerFactoryExtensions).
-                          GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                          GetMethods(BindingFlags.Static | BindingFlags.Public)
                           .First(x => x.ContainsGenericParameters);
             container.RegisterInstance(loggerFactory, new ContainerControlledLifetimeManager());
             container.RegisterFactory(typeof(ILogger<>), null, (c, t, n) =>
@@ -54,6 +66,19 @@ namespace VoiceChangerApp
             _logger.LogInformation("App loaded.");
             var w = Container.Resolve<EditorWindow>();
             return w;
+        }
+
+        protected override void ConfigureViewModelLocator()
+        {
+            base.ConfigureViewModelLocator();
+
+            //ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver((viewType) =>
+            //{
+            //    var viewName = viewType.FullName.Replace(".ViewModels.", ".CustomNamespace.");
+            //    var viewAssemblyName = viewType.GetTypeInfo().Assembly.FullName;
+            //    var viewModelName = $"{viewName}ViewModel, {viewAssemblyName}";
+            //    return Type.GetType(viewModelName);
+            //});
         }
     }
 }

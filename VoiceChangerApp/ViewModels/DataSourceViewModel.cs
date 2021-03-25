@@ -5,15 +5,13 @@ using System;
 using System.Reactive.Linq;
 using System.Threading;
 using VoiceChangerApp.Models;
+using VoiceChangerApp.Utils;
 
 namespace VoiceChangerApp.ViewModels
 {
     public class DataSourceViewModel : BindableBase
     {
-        public DataSourceViewModel()
-        {
-
-        }
+        public DataSourceViewModel() { }
 
         public DataSourceViewModel(SoundDataModel soundDataModel)
         {
@@ -23,22 +21,31 @@ namespace VoiceChangerApp.ViewModels
                 var openFileDialog = new OpenFileDialog();
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    SoundDataModel.OnLoadFile.OnNext(openFileDialog.FileName);
+                    SoundDataModel.LoadFile.OnNext(openFileDialog.FileName);
                 }
             });
 
-            SoundDataModel.OnSoundTrackLoaded
+            SoundDataModel.OnSampleLoaded
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(OnSoundTrackLoaded);
 
+            SoundDataModel.OnSoundSourceChanged
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(OnSoundSourceChanged);
+
             OnSoundTrackLoaded(SoundDataModel.IsAudioContainerCreated);
+        }
+
+        private void OnSoundSourceChanged(SoundSource soundSource)
+        {
+            SoundSource = soundSource;
         }
 
         private void OnSoundTrackLoaded(bool success)
         {
             IsSoundTrackLoaded = SoundDataModel.IsAudioContainerCreated;
             IsLoadedFromFile = SoundDataModel.IsLoadedFromFile;
-            if (IsLoadedFromFile)
+            if (SoundDataModel.IsAudioContainerCreated)
             {
                 Path = SoundDataModel.Path;
                 Duration = SoundDataModel.AudioContainer.Duration;
@@ -87,6 +94,13 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _signalsCount; }
             set { SetProperty(ref _signalsCount, value); }
+        }
+
+        private SoundSource _soundSource;
+        public SoundSource SoundSource
+        {
+            get { return _soundSource; }
+            set { SetProperty(ref _soundSource, value); }
         }
 
         public DelegateCommand OpenFileCommand { get; private set; }

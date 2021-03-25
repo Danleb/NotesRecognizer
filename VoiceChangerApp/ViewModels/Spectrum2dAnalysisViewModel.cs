@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using VoiceChanger.SpectrumCreator;
 using VoiceChangerApp.Models;
+using VoiceChangerApp.Utils;
 
 namespace VoiceChangerApp.ViewModels
 {
@@ -19,14 +20,14 @@ namespace VoiceChangerApp.ViewModels
         {
             SoundDataModel = soundDataModel;
 
-            GenerateSpectrum2dCommand = new DelegateCommand(() =>
+            CalculateSpectrum2dCommand = new DelegateCommand(() =>
             {
-                SoundDataModel.GenerateCommonSignalSpectrum();
+                SoundDataModel.CalculateSampleSignalSpectrum.Invoke();
             });
 
-            SoundDataModel.OnCommonSignalSpectrumGenerated
+            SoundDataModel.OnCommonSignalSpectrumCalculated
                 .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(OnCommonSignalSpectrumGenerated);
+                .Subscribe(OnCommonSignalSpectrumCalculated);
         }
 
         private SpectrumSlice _spectrumSlice;
@@ -47,9 +48,9 @@ namespace VoiceChangerApp.ViewModels
             get { return _isSpectrumGenerated; }
             set { SetProperty(ref _isSpectrumGenerated, value); }
         }
-        public DelegateCommand GenerateSpectrum2dCommand { get; }
+        public DelegateCommand CalculateSpectrum2dCommand { get; }
 
-        private void OnCommonSignalSpectrumGenerated(bool success)
+        private void OnCommonSignalSpectrumCalculated(bool success)
         {
             IsSpectrumGenerated = success;
             if (success)

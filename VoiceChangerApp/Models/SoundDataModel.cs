@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using VoiceChanger.FormatParser;
 using VoiceChanger.SpectrumCreator;
 using VoiceChanger.Utils;
+using VoiceChangerApp.Utils;
 
 namespace VoiceChangerApp.Models
 {
@@ -16,17 +18,31 @@ namespace VoiceChangerApp.Models
         public SoundDataModel(ILogger<SoundDataModel> logger)
         {
             _logger = logger;
-            OnLoadFile.Subscribe(LoadFile);
-            LoadDefaultFile();
+            LoadFile.Subscribe(LoadFileImp);
+            CalculateSampleSignalSpectrum.Subscribe(_ => GenerateCommonSignalSpectrumImp());
+            GenerateSample.Subscribe(GenerateSampleImp);
+
+            LoadDefaultData();
         }
+
+        #region Commands
+
+        public Subject<string> LoadFile = new();
+        public Subject<AudioContainer> LoadContainer = new();
+        public Subject<bool> CalculateSampleSignalSpectrum = new();
+        public Subject<SampleGeneratorSettings> GenerateSample = new();
+        public Subject<bool> SaveCurrentSampleToFile = new();
+
+        #endregion
 
         #region Events
 
-        public Subject<string> OnLoadFile = new();
-        public Subject<bool> OnSoundTrackLoaded = new();
-        public Subject<bool> OnCommonSignalSpectrumGenerated = new();
+
+        public Subject<bool> OnSampleLoaded = new();
+        public Subject<bool> OnCommonSignalSpectrumCalculated = new();
         public Subject<Exception> OnException = new();
         public Subject<bool> OnIsLoading = new();
+        public Subject<SoundSource> OnSoundSourceChanged = new();
 
         #endregion
 
@@ -39,10 +55,45 @@ namespace VoiceChangerApp.Models
         public bool IsLoadedFromFile { get; private set; }
         public string Path { get; private set; }
         public SpectrumSlice CommonSignalSpectrum { get; private set; }
+        public SoundSource SoundSource { get; private set; }
 
         #endregion
 
-        private void LoadFile(string path)
+        #region Debug
+
+        [Conditional("DEBUG")]
+        private void LoadDefaultData()
+        {
+            //LoadDefaultFile();
+            GenerateDefaultSample();
+        }
+
+        private void LoadDefaultFile()
+        {
+            LoadFile.OnNext(Samples.Wave100hz);
+        }
+
+        private void GenerateDefaultSample()
+        {
+            var settings = new SampleGeneratorSettings
+            {
+                SampleRate = 100,
+                Datas = new List<SignalGenerationData>
+                {
+                    new SignalGenerationData
+                    {
+                        TimeStart = 0,
+                        Duration = 1,
+                        Frequency = 10,
+                    }
+                }
+            };
+            GenerateSampleImp(settings);
+        }
+
+        #endregion
+
+        private void LoadFileImp(string path)
         {
             Path = path;
             IsLoadedFromFile = true;
@@ -52,11 +103,13 @@ namespace VoiceChangerApp.Models
             {
                 _logger.LogInformation("Loading from path {Path}", path);
                 AudioContainer = AudioLoader.Load(path);
-                OnSoundTrackLoaded.OnNext(true);
+                OnSampleLoaded.OnNext(true);
+                OnSoundSourceChanged.OnNext(SoundSource.File);
             }
             catch (Exception e)
             {
-                OnSoundTrackLoaded.OnNext(false);
+                AudioContainer = null;
+                OnSampleLoaded.OnNext(false);
                 OnException.OnNext(e);
             }
             finally
@@ -65,7 +118,7 @@ namespace VoiceChangerApp.Models
             }
         }
 
-        public void GenerateCommonSignalSpectrum()
+        private void GenerateCommonSignalSpectrumImp()
         {
             if (!IsAudioContainerCreated)
             {
@@ -77,19 +130,34 @@ namespace VoiceChangerApp.Models
                 var fft = new FastFourierTransformCPU(AudioContainer);
                 var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
                 CommonSignalSpectrum = fft.CreateSpectrum(0, count);
-                OnCommonSignalSpectrumGenerated.OnNext(true);
+                OnCommonSignalSpectrumCalculated.OnNext(true);
             }
             catch (Exception e)
             {
-                OnCommonSignalSpectrumGenerated.OnNext(false);
+                OnCommonSignalSpectrumCalculated.OnNext(false);
                 OnException.OnNext(e);
             }
         }
 
-        [Conditional("DEBUG")]
-        private void LoadDefaultFile()
+        private void GenerateSampleImp(SampleGeneratorSettings settings)
         {
-            OnLoadFile.OnNext(Samples.Wave100hz);
+            try
+            {
+                AudioContainer = SampleGenerator.GenerateSample(settings);                
+                OnSampleLoaded.OnNext(true);
+                OnSoundSourceChanged.OnNext(SoundSource.Generated);
+            }
+            catch (Exception e)
+            {
+                AudioContainer = null;
+                OnSampleLoaded.OnNext(false);
+                OnException.OnNext(e);
+            }
+        }
+
+        private void SaveSampleToFile()
+        {
+
         }
     }
 }

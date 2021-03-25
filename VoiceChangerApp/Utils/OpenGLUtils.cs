@@ -13,6 +13,17 @@ namespace VoiceChangerApp.Utils
         public static uint NO_SHADER = 0;
         public static uint NO_PROGRAM = 0;
 
+        public static readonly float[] QuadVertexBuffer =
+        {
+            -1.0f, -1.0f, 0, 0,
+            1.0f, -1.0f, 1, 0,
+            -1.0f, 1.0f, 0, 1,
+
+            1.0f, 1.0f, 1, 1,
+            -1.0f, 1.0f, 0, 1,
+            1.0f, -1.0f, 1, 0,
+        };
+
         public static void InitDebug(this OpenGL gl)
         {
             //gl.Enable(OpenGL.Debug);            
