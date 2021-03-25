@@ -4,8 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance {x:Type vm:RecordingSoundViewModel}, IsDesignTimeCreatable=True}">
     <UserControl.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -22,7 +26,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Label Content="Record time:" Style="{DynamicResource BoldLabel}"/>
-                <Label Content="0.00"/>
+                <Label Content="{Binding }"/>
             </StackPanel>
             <Button Margin="5" Content="Start recording" HorizontalAlignment="Left"/>
             <Button Margin="5" Content="Stop recording" HorizontalAlignment="Left"/>

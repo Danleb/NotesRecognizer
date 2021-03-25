@@ -23,6 +23,10 @@
             <StackPanel Orientation="Vertical">
                 <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
                 <StackPanel Orientation="Horizontal">
+                    <Label Content="Sample data source: " Style="{DynamicResource BoldLabel}"/>
+                    <Label Content="From File/Generated/Recorded"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
                     <Label Content="File path: " Style="{DynamicResource BoldLabel}"/>
                     <Label Content="{Binding Path}"></Label>
                 </StackPanel>
@@ -39,6 +43,9 @@
                     <Label Content="{Binding SignalsCount}" />
                 </StackPanel>
             </StackPanel>
+            <TabControl>
+                
+            </TabControl>
             <StackPanel>
                 <Label Margin="5" Content="Current work folder:"/>
                 <StackPanel Orientation="Horizontal">
@@ -48,16 +55,6 @@
                 <Button Content="Load selected file" Margin="5"/>
                 <ListBox Margin="5"/>
             </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label Margin="5" Content="Samples generation"/>
-                <Label Content="Frequency:"/>
-                <TextBox Margin="5"/>
-                <Label Content="Duration"/>
-                <TextBox Margin="5"/>
-                <Button Margin="5" Content="Generate and load"/>
-                <Button Margin="5" Content="Save current sample"/>
-            </StackPanel>
         </StackPanel>
-
     </Grid>
 </UserControl>

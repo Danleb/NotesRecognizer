@@ -11,6 +11,8 @@ namespace VoiceChanger.SpectrumCreator
         public float MinAmplitude => 0.0f;
         public IReadOnlyList<FrequencyAmplitudeData> Datas { get; }
 
+        public int FrequencyDataCount => Datas.Count;
+
         public SpectrumSlice()
         {
 
@@ -26,7 +28,7 @@ namespace VoiceChanger.SpectrumCreator
 
         public float GetAmplitudeForFrequency(int frequency)
         {
-            return 0;
+            return Datas.Single(v => v.Frequency == frequency).Amplitude;
         }
     }
 }

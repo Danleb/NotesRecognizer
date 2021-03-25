@@ -53,18 +53,12 @@ namespace VoiceChangerApp.Views.SoundViews
         public SignalgramView()
         {
             InitializeComponent();
+            UpdateRenderingContext();
             _gl = OpenGLControl.OpenGL;
-            _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
-
+            _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));            
             //OpenGLControl.RenderContextType = RenderContextType.HiddenWindow;
             //OpenGLControl.RenderContextType = RenderContextType.FBO;
             //OpenGLControl.RenderTrigger = RenderTrigger.Manual;
-
-        }
-
-        private void SignalgramView_LayoutUpdated(object sender, EventArgs e)
-        {
-            OpenGLControl.ForceRedraw();
         }
 
         [Bindable(true)]
@@ -75,7 +69,6 @@ namespace VoiceChangerApp.Views.SoundViews
             {
                 SetValue(AudioContainerProperty, value);
                 CheckAndInitAudioData();
-                OpenGLControl.RenderSize = new System.Windows.Size(100, 100);
             }
         }
 
@@ -221,6 +214,10 @@ namespace VoiceChangerApp.Views.SoundViews
             {
                 return;
             }
+            //if (!_isRedrawNeeded)
+            //{
+            //    return;
+            //}
 
             CheckAndInitProgram();
             CheckAndInitAudioData();
@@ -229,18 +226,8 @@ namespace VoiceChangerApp.Views.SoundViews
             {
                 return;
             }
-            //if (!_isRedrawNeeded)
-            //{
-            //    return;
-            //}
-            //_isRedrawNeeded = false;
 
-            //if (!called)
-            //{
-            //    called = true;
-            //    OpenGLControl.ForceRedraw();
-            //    return;
-            //}
+            //_isRedrawNeeded = false;
 
             if (AudioContainer == null)
             {

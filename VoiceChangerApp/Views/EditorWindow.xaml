@@ -12,6 +12,14 @@
         d:DataContext="{d:DesignInstance {x:Type vm:EditorWindowViewModel}, IsDesignTimeCreatable=True}"
         Title="Editor" Height="720" Width="1280"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged" SelectedIndex="1">
             <TabItem>

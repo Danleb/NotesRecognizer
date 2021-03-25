@@ -4,9 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance {x:Type vm:SoundGenerationViewModel}, IsDesignTimeCreatable=True}">
     <Grid Background="White">
-            
+        <StackPanel Orientation="Vertical">
+            <Label Margin="5" Content="Samples generation"/>
+            <Label Content="Frequency:"/>
+            <TextBox Margin="5"/>
+            <Label Content="Duration"/>
+            <TextBox Margin="5"/>
+            <Button Margin="5" Content="Generate and load"/>
+            <Button Margin="5" Content="Save current sample"/>
+        </StackPanel>
     </Grid>
 </UserControl>

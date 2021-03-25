@@ -41,10 +41,17 @@ namespace VoiceChangerApp.ViewModels
             get { return _soundDataModel; }
             set { SetProperty(ref _soundDataModel, value); }
         }
+        private bool _isSpectrumGenerated;
+        public bool IsSpectrumGenerated
+        {
+            get { return _isSpectrumGenerated; }
+            set { SetProperty(ref _isSpectrumGenerated, value); }
+        }
         public DelegateCommand GenerateSpectrum2dCommand { get; }
 
         private void OnCommonSignalSpectrumGenerated(bool success)
         {
+            IsSpectrumGenerated = success;
             if (success)
             {
                 CommonSignalSpectrum = SoundDataModel.CommonSignalSpectrum;

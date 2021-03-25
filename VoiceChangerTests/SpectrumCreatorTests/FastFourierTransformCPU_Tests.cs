@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using VoiceChanger.FormatParser;
 using VoiceChanger.SpectrumCreator;
 using VoiceChanger.Utils;
 
@@ -20,7 +19,7 @@ namespace VoiceChangerTests.SpectrumCreatorTests
             var amplitude150 = slice.GetAmplitudeForFrequency(150);
             Assert.True(amplitude50 < 0.1f);
             Assert.True(amplitude100 > 0.9f);
-            Assert.True(amplitude150 > 0.1f);
+            Assert.True(amplitude150 < 0.1f);
         }
     }
 }

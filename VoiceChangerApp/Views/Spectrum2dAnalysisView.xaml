@@ -11,10 +11,24 @@
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DataContext="{d:DesignInstance {x:Type vm:Spectrum2dAnalysisViewModel}, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid Background="White">
         <DockPanel>
-            <Button DockPanel.Dock="Top" Margin="5" Content="Generate signal common spectrum" Command="{Binding GenerateSpectrum2dCommand}" HorizontalAlignment="Left"/>
+            <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Is spectrum calculated:" Style="{StaticResource BoldLabel}"/>
+                    <Label Content="{Binding IsSpectrumGenerated}"/>
+                </StackPanel>
+                <Button Margin="5" Content="Generate signal common spectrum" Command="{Binding GenerateSpectrum2dCommand}" HorizontalAlignment="Left"/>
+            </StackPanel>
+
             <soundViews:Spectrum2dRenderView x:Name="Spectrum2dRenderView" SpectrumSlice="{Binding CommonSignalSpectrum}"/>
-        </DockPanel>        
+        </DockPanel>
     </Grid>
 </UserControl>

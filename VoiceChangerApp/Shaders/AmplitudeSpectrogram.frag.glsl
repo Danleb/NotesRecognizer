@@ -1,6 +1,6 @@
-﻿#version 430
+#version 430
 
-in vec2 texCoord;
+in vec2 texCoordV;
 out vec4 out_color;
 
 uniform int startFrequencyElementIndex;
@@ -18,10 +18,14 @@ layout(std430, binding = 0) buffer Input0 {
 void main()
 {
 	int width = endFrequencyElementIndex - startFrequencyElementIndex;
-	float frequencyWidth = 1.0 / (int)width;
-	int currentFrequencyIndex = floor(texCoord.x / frequencyWidth);
+	float frequencyWidth = 1.0 / int(width);
+	int currentFrequencyIndex = int(floor(texCoordV.x / frequencyWidth));
 	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];
-	float pixelRelativeAmplitude = mix(minAmplitude, maxAmplitude, texCoord.y);
+	float pixelRelativeAmplitude = mix(minAmplitude, maxAmplitude, texCoordV.y);
+
+	//vec2 v = (texCoordV + 1.0) / 2.0;
+	//out_color = vec4(v, 0.0, 1.0);	
+	//out_color = vec4(texCoordV, 0.0, 1.0);
 
 	if (pixelRelativeAmplitude <= amplitude)
 	{
