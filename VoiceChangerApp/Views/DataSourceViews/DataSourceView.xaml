@@ -26,7 +26,7 @@
                     <Label Content="Sample data source: " Style="{DynamicResource BoldLabel}"/>
                     <Label Content="{Binding SoundSource}"></Label>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoadedFromFile, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Label Content="File path: " Style="{DynamicResource BoldLabel}"/>
                     <Label Content="{Binding Path}"></Label>
                 </StackPanel>

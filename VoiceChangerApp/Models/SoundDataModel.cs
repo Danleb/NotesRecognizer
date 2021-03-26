@@ -19,7 +19,7 @@ namespace VoiceChangerApp.Models
         {
             _logger = logger;
             LoadFile.Subscribe(LoadFileImp);
-            CalculateSampleSignalSpectrum.Subscribe(_ => GenerateCommonSignalSpectrumImp());
+            CalculateSampleSignalSpectrum.Subscribe(_ => CalculateCommonSignalSpectrumImp());
             GenerateSample.Subscribe(GenerateSampleImp);
 
             LoadDefaultData();
@@ -103,8 +103,10 @@ namespace VoiceChangerApp.Models
             {
                 _logger.LogInformation("Loading from path {Path}", path);
                 AudioContainer = AudioLoader.Load(path);
+
+                SoundSource = SoundSource.File;
                 OnSampleLoaded.OnNext(true);
-                OnSoundSourceChanged.OnNext(SoundSource.File);
+                OnSoundSourceChanged.OnNext(SoundSource);
             }
             catch (Exception e)
             {
@@ -118,7 +120,30 @@ namespace VoiceChangerApp.Models
             }
         }
 
-        private void GenerateCommonSignalSpectrumImp()
+        private void GenerateSampleImp(SampleGeneratorSettings settings)
+        {
+            try
+            {
+                AudioContainer = SampleGenerator.GenerateSample(settings);
+
+                SoundSource = SoundSource.Generated;
+                OnSampleLoaded.OnNext(true);
+                OnSoundSourceChanged.OnNext(SoundSource);
+            }
+            catch (Exception e)
+            {
+                AudioContainer = null;
+                OnSampleLoaded.OnNext(false);
+                OnException.OnNext(e);
+            }
+        }
+
+        private void SaveSampleToFile()
+        {
+
+        }
+
+        private void CalculateCommonSignalSpectrumImp()
         {
             if (!IsAudioContainerCreated)
             {
@@ -137,27 +162,6 @@ namespace VoiceChangerApp.Models
                 OnCommonSignalSpectrumCalculated.OnNext(false);
                 OnException.OnNext(e);
             }
-        }
-
-        private void GenerateSampleImp(SampleGeneratorSettings settings)
-        {
-            try
-            {
-                AudioContainer = SampleGenerator.GenerateSample(settings);                
-                OnSampleLoaded.OnNext(true);
-                OnSoundSourceChanged.OnNext(SoundSource.Generated);
-            }
-            catch (Exception e)
-            {
-                AudioContainer = null;
-                OnSampleLoaded.OnNext(false);
-                OnException.OnNext(e);
-            }
-        }
-
-        private void SaveSampleToFile()
-        {
-
         }
     }
 }

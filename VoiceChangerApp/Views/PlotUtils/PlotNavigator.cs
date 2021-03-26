@@ -45,7 +45,7 @@ namespace VoiceChangerApp.Views.SoundViews
         public float KeyboardNavigationSpeed { get; set; } = 1.0f / 800.0f;
         public bool ScaleAxesSeparately { get; set; } = true;
 
-        private float XUnitsPerPixel => Viewport.ScaledWidth / (float)Control.ActualWidth;
+        private float XUnitsPerPixel => Viewport.Width / (float)Control.ActualWidth;
 
         private void Control_MouseWheel(object sender, MouseWheelEventArgs e)
         {

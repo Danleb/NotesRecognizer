@@ -34,6 +34,7 @@ namespace VoiceChangerApp.ViewModels
                 .Subscribe(OnSoundSourceChanged);
 
             OnSoundTrackLoaded(SoundDataModel.IsAudioContainerCreated);
+            OnSoundSourceChanged(soundDataModel.SoundSource);
         }
 
         private void OnSoundSourceChanged(SoundSource soundSource)
@@ -44,7 +45,7 @@ namespace VoiceChangerApp.ViewModels
         private void OnSoundTrackLoaded(bool success)
         {
             IsSoundTrackLoaded = SoundDataModel.IsAudioContainerCreated;
-            IsLoadedFromFile = SoundDataModel.IsLoadedFromFile;
+            IsLoadedFromFile = SoundDataModel.SoundSource == SoundSource.File;
             if (SoundDataModel.IsAudioContainerCreated)
             {
                 Path = SoundDataModel.Path;

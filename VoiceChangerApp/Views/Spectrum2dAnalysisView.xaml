@@ -25,6 +25,14 @@
                     <Label Content="Is spectrum calculated:" Style="{StaticResource BoldLabel}"/>
                     <Label Content="{Binding IsSpectrumGenerated}"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Spectrum calculating state:" Style="{StaticResource BoldLabel}"/>
+                    <Label Content="-"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Frequencies range:" Style="{StaticResource BoldLabel}"/>
+                    <Label Content="{Binding FrequenciesRange}" />
+                </StackPanel>
                 <Button Margin="5" Content="Generate signal common spectrum" Command="{Binding CalculateSpectrum2dCommand}" HorizontalAlignment="Left"/>
             </StackPanel>
 

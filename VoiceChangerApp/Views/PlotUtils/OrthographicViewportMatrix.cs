@@ -1,4 +1,6 @@
-﻿namespace VoiceChangerApp.Views.SoundViews
+﻿using System.Numerics;
+
+namespace VoiceChangerApp.Views.SoundViews
 {
     public class OrthographicViewportMatrix
     {
@@ -10,8 +12,6 @@
         private float _top;
         private float _near;
         private float _far;
-        private float _scaleX;//todo remove
-        private float _scaleY;//todo remove
 
         public OrthographicViewportMatrix()
         {
@@ -25,10 +25,6 @@
         public float Right { get => _right; set => _right = value; }
         public float Far { get => _far; set => _far = value; }
         public float Near { get => _near; set => _near = value; }
-        public float ScaleX { get => _scaleX; set => _scaleX = value; }
-        public float ScaleY { get => _scaleY; set => _scaleY = value; }
-        public float ScaledWidth => (Right - Left) * ScaleX;
-        public float ScaledHeight => (Top - Bottom) * ScaleY;
         public float Width => Right - Left;
         public float Height => Top - Bottom;
 
@@ -56,13 +52,13 @@
 
         public void UpdateMatrix()
         {
-            Matrix[0 * 4 + 0] = (2 / (Right - Left)) * ScaleX;
+            Matrix[0 * 4 + 0] = (2 / (Right - Left));// * ScaleX;
             Matrix[0 * 4 + 1] = 0;
             Matrix[0 * 4 + 2] = 0;
             Matrix[0 * 4 + 3] = 0;
 
             Matrix[1 * 4 + 0] = 0;
-            Matrix[1 * 4 + 1] = 2 / (Top - Bottom) * ScaleY;
+            Matrix[1 * 4 + 1] = 2 / (Top - Bottom);// * ScaleY;
             Matrix[1 * 4 + 2] = 0;
             Matrix[1 * 4 + 3] = 0;
 
@@ -121,8 +117,20 @@
             _top = 1;
             _far = -1;
             _near = 1;
-            _scaleX = 1;
-            _scaleY = 1;
+        }
+
+        public Vector2 Transform(Vector2 v)
+        {
+            return new Vector2(
+                Matrix[0] * v.X + Matrix[3 * 4 + 0],
+                Matrix[5] * v.Y + Matrix[3 * 4 + 1]);
+        }
+
+        public Vector2 InverseTransform(Vector2 v)
+        {
+            return new Vector2(
+                (v.X - Matrix[3 * 4 + 0]) / Matrix[0],
+                (v.Y - Matrix[3 * 4 + 1]) / Matrix[5]);
         }
     }
 }

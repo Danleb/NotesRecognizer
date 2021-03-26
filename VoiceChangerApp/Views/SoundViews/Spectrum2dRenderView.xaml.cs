@@ -4,6 +4,7 @@ using SharpGL;
 using SharpGL.WPF;
 using System;
 using System.ComponentModel;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Input;
 using VoiceChanger.SpectrumCreator;
@@ -124,7 +125,7 @@ namespace VoiceChangerApp.Views.SoundViews
                 _minAmplitudeLocation = GL.GetUniformLocation(_program, "minAmplitude");
                 _maxAmplitudeLocation = GL.GetUniformLocation(_program, "maxAmplitude");
                 _mvpMatrixLocation = GL.GetUniformLocation(_program, "MVP");
-                _mousePositionLocation = GL.GetUniformLocation(_program, "mousePosition");
+                _mousePositionLocation = GL.GetUniformLocation(_program, "mouseUV");
                 return true;
             }
             catch (Exception exception)
@@ -213,10 +214,14 @@ namespace VoiceChangerApp.Views.SoundViews
 
             if (OpenGLControl.IsMouseOver)
             {
-                var point = Mouse.GetPosition(OpenGLControl);
-                point = new Point((point.X / OpenGLControl.ActualWidth) * 2 - 1.0, (1.0 - point.Y / OpenGLControl.ActualHeight) * 2 - 1.0);
-                _logger.LogError("X=" + point.X);
-                GL.Uniform2(_mousePositionLocation, (float)point.X, (float)point.Y);
+                var mouse = Mouse.GetPosition(OpenGLControl);
+                var bottomLeft = _viewport.Transform(new Vector2(-1, -1));
+                var topRight = _viewport.Transform(new Vector2(1, 1));
+                var pointerScreenCube = new Vector2((float)(mouse.X / OpenGLControl.ActualWidth) * 2 - 1.0f, (float)(1.0f - mouse.Y / OpenGLControl.ActualHeight) * 2 - 1.0f);
+                var pointerCamera = _viewport.InverseTransform(pointerScreenCube);
+                float pointerU = (float)(pointerCamera.X + 1) / 2.0f;
+                float pointerV = (float)(pointerCamera.Y + 1) / 2.0f;
+                GL.Uniform2(_mousePositionLocation, pointerU, pointerV);
             }
             else
             {

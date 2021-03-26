@@ -30,6 +30,8 @@ namespace VoiceChangerApp.ViewModels
                 .Subscribe(OnCommonSignalSpectrumCalculated);
         }
 
+        #region Properties
+
         private SpectrumSlice _spectrumSlice;
         public SpectrumSlice CommonSignalSpectrum
         {
@@ -48,7 +50,21 @@ namespace VoiceChangerApp.ViewModels
             get { return _isSpectrumGenerated; }
             set { SetProperty(ref _isSpectrumGenerated, value); }
         }
+
+        private string _frequenciesRange;
+        public string FrequenciesRange
+        {
+            get { return _frequenciesRange; }
+            set { SetProperty(ref _frequenciesRange, value); }
+        }
+
+        #endregion
+
+        #region Commands
+
         public DelegateCommand CalculateSpectrum2dCommand { get; }
+
+        #endregion
 
         private void OnCommonSignalSpectrumCalculated(bool success)
         {
@@ -56,6 +72,7 @@ namespace VoiceChangerApp.ViewModels
             if (success)
             {
                 CommonSignalSpectrum = SoundDataModel.CommonSignalSpectrum;
+                FrequenciesRange = $"{CommonSignalSpectrum.MinAmplitude}-{CommonSignalSpectrum.MaxFrequency}";
             }
         }
     }

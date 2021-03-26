@@ -115,7 +115,7 @@ namespace VoiceChanger.SpectrumCreator
             }
 
             var list = new List<FrequencyAmplitudeData>();
-            for (var i = 0; i < Nmax; i++)
+            for (var i = 0; i < Nmax / 2; i++)
             {
                 var complex = x[i];
                 var amplitude = (float)Math.Sqrt(complex.Real * complex.Real + complex.Imaginary * complex.Imaginary);

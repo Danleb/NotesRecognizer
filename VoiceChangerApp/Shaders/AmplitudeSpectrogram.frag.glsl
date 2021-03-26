@@ -7,11 +7,11 @@ uniform int startFrequencyElementIndex;
 uniform int endFrequencyElementIndex;
 uniform float minAmplitude;
 uniform float maxAmplitude;
-uniform vec2 mousePosition;
+uniform vec2 mouseUV;
 uniform mat4 MVP;
 
-const vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+const vec4 background = vec4(0.1, 0.1, 0.1, 1.0);
+const vec4 diagram = vec4(0.9, 0.9, 0.9, 1.0);
 const vec4 highlight = vec4(0.0, 0.7, 0.0, 1.0);
 
 layout(std430, binding = 0) buffer Input0 {
@@ -29,30 +29,11 @@ int getFrequencyIndex(float u)
 void main()
 {
 	int currentFrequencyIndex = getFrequencyIndex(texCoordV.x);
-	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];
+	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];	
 	float pixelRelativeAmplitude = mix(minAmplitude, maxAmplitude, texCoordV.y);
 
-	vec4 v = vec4(mousePosition, 0.0, 1.0);
-	vec4 mouseUV = v * MVP;
-	float x = (mouseUV.x + 1.0) / 2.0;
-	float y = (mouseUV.y + 1.0) / 2.0;
-	int mousePointerFrequencyIndex = getFrequencyIndex(x);
-	float mouseRelativeAmplitude = mix(minAmplitude, maxAmplitude, y);
-
-	//vec2 v = (texCoordV + 1.0) / 2.0;
-	//out_color = vec4(v, 0.0, 1.0);	
-	//out_color = vec4(texCoordV, 0.0, 1.0);
-
-	//todo anyway drawing 1px width;
-
-	/*if (x > texCoordV.x)
-	{
-		out_color = highlight;
-	}
-	else
-	{
-		out_color = white;
-	}*/
+	int mousePointerFrequencyIndex = getFrequencyIndex(mouseUV.x);
+	float mouseRelativeAmplitude = mix(minAmplitude, maxAmplitude, mouseUV.y);
 
 	if (pixelRelativeAmplitude <= amplitude)
 	{
@@ -62,11 +43,11 @@ void main()
 		}
 		else
 		{
-			out_color = white;
+			out_color = diagram;
 		}
 	}
 	else
 	{
-		out_color = black;
+		out_color = background;
 	}
 }
