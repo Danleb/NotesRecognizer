@@ -48,9 +48,9 @@ namespace VoiceChangerApp.ViewModels
 
             });
 
-            SignalFrequency = 10;
-            SampleRate = 100;
-            Duration = 1.0f;
+            SignalFrequency = 1;
+            SampleRate = 1024;
+            Duration = 128;
         }
 
         #region Properties

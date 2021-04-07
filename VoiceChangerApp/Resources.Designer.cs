@@ -129,5 +129,15 @@ namespace VoiceChangerApp {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Spectrogram3d_frag {
+            get {
+                object obj = ResourceManager.GetObject("Spectrogram3d_frag", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

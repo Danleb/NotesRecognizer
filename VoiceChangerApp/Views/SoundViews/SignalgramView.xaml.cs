@@ -35,9 +35,7 @@ namespace VoiceChangerApp.Views.SoundViews
             typeof(SignalgramView),
             new UIPropertyMetadata(Color.White));
 
-        private const float PlotYUpscale = 3.0f;
-        private readonly ILogger _logger;
-        private readonly uint[] _bufferTemp = new uint[10];
+        private const float PlotYAxisUpscale = 3.0f;
         private OpenGL _gl;
         private float[] _points;
         private uint _linesVBO = OpenGLUtils.NO_BUFFER;
@@ -146,18 +144,17 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.VertexAttribPointer((uint)positionAttribute, 2, OpenGL.GL_FLOAT, false, 0, IntPtr.Zero);
             _gl.EnableVertexAttribArray((uint)positionAttribute);
 
-            _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
-
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
 
-            _boundSquare = new BoundSquare(0, AudioContainer.Duration, AudioContainer.Min * PlotYUpscale, AudioContainer.Max * PlotYUpscale);
+            _boundSquare = new BoundSquare(0, AudioContainer.Duration, AudioContainer.Min * PlotYAxisUpscale, AudioContainer.Max * PlotYAxisUpscale);
 
             _viewport = new();
             _viewport.Bottom = _boundSquare.Bottom;
             _viewport.Top = _boundSquare.Top;
-            _viewport.Left = 0;
-            _viewport.Right = 0.5f;
+            _viewport.Left = _boundSquare.Left;
+            _viewport.Right = _boundSquare.Right;
+            //_viewport.Right = 0.5f;
             _viewport.UpdateMatrix();
 
             _coordinateGridDrawer.Viewport = _viewport;
@@ -182,6 +179,7 @@ namespace VoiceChangerApp.Views.SoundViews
             try
             {
                 _program = _gl.CompileProgram(AppResources.SimpleMatrix_vert, AppResources.Signalgram_frag);
+                _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
             }
             catch (Exception exception)
             {
@@ -238,9 +236,7 @@ namespace VoiceChangerApp.Views.SoundViews
                 _gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             }
 
-            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
-
-            _coordinateGridDrawer.Render();
+            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);            
 
             _gl.UseProgram(_program);
             _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);
@@ -262,6 +258,8 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.UseProgram(OpenGLUtils.NO_PROGRAM);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
+
+            _coordinateGridDrawer.Render();
         }
     }
 }

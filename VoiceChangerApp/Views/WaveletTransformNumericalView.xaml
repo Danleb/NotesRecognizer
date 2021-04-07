@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="VoiceChangerApp.Views.WaveletTransformNumericalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VoiceChangerApp.Views"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:vr="clr-namespace:VoiceChangerApp.Views.ValidationRules"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance {x:Type vm:WaveletTransformNumericalViewModel}, IsDesignTimeCreatable=True}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="White">
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <Label Margin="5" Content="Frequency to find:"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Margin="5" Style="{StaticResource TextBoxValidating}">
+                        <TextBox.Text>
+                            <Binding Path="FrequencyToAnalyze" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <vr:PositiveIntValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Button Content="-1" Margin="5" Padding="15, 2" Command="{Binding AnalyzePreviousFrequency}"/>
+                    <Button Content="+1" Margin="5" Padding="15, 2" Command="{Binding AnalyzeNextFrequency}"/>
+                </StackPanel>
+                
+                <Button Command="{Binding GenerateAnalysis}" Margin="5" Content="Generate wavelet transform" HorizontalAlignment="Left"/>
+            </StackPanel>
+
+            <oxy:Plot Title="Wavelet transform">
+                <oxy:Plot.Series>
+                    <oxy:LineSeries ItemsSource="{Binding Points}"/>
+                </oxy:Plot.Series>
+            </oxy:Plot>
+        </DockPanel>        
+    </Grid>
+</UserControl>

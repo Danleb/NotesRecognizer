@@ -18,8 +18,9 @@ namespace VoiceChangerApp.Models
         public SoundDataModel(ILogger<SoundDataModel> logger)
         {
             _logger = logger;
-            LoadFile.Subscribe(LoadFileImp);
-            CalculateSampleSignalSpectrum.Subscribe(_ => CalculateCommonSignalSpectrumImp());
+            LoadFile.Subscribe(LoadFileImpl);
+            LoadContainer.Subscribe(LoadContainerImpl);
+            CalculateSampleSignalSpectrum.Subscribe(_ => CalculateCommonSignalSpectrumImpl());
             GenerateSample.Subscribe(GenerateSampleImp);
 
             LoadDefaultData();
@@ -77,14 +78,14 @@ namespace VoiceChangerApp.Models
         {
             var settings = new SampleGeneratorSettings
             {
-                SampleRate = 100,
+                SampleRate = 1024,
                 Datas = new List<SignalGenerationData>
                 {
                     new SignalGenerationData
                     {
                         TimeStart = 0,
-                        Duration = 1,
-                        Frequency = 10,
+                        Duration = 8,
+                        Frequency = 10,                        
                     }
                 }
             };
@@ -93,7 +94,7 @@ namespace VoiceChangerApp.Models
 
         #endregion
 
-        private void LoadFileImp(string path)
+        private void LoadFileImpl(string path)
         {
             Path = path;
             IsLoadedFromFile = true;
@@ -103,6 +104,7 @@ namespace VoiceChangerApp.Models
             {
                 _logger.LogInformation("Loading from path {Path}", path);
                 AudioContainer = AudioLoader.Load(path);
+                AudioContainer.Normalize();
 
                 SoundSource = SoundSource.File;
                 OnSampleLoaded.OnNext(true);
@@ -143,7 +145,7 @@ namespace VoiceChangerApp.Models
 
         }
 
-        private void CalculateCommonSignalSpectrumImp()
+        private void CalculateCommonSignalSpectrumImpl()
         {
             if (!IsAudioContainerCreated)
             {
@@ -152,9 +154,11 @@ namespace VoiceChangerApp.Models
 
             try
             {
-                var fft = new FastFourierTransformCPU(AudioContainer);
-                var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
-                CommonSignalSpectrum = fft.CreateSpectrum(0, count);
+                //var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
+                var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
+                //var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransform(0, count);                
+                //CommonSignalSpectrum = fft.CreateSpectrum(0, count);
+                CommonSignalSpectrum = FastFourierTransformCPU.ConvertToSpectrumSlice(fft);
                 OnCommonSignalSpectrumCalculated.OnNext(true);
             }
             catch (Exception e)
@@ -162,6 +166,14 @@ namespace VoiceChangerApp.Models
                 OnCommonSignalSpectrumCalculated.OnNext(false);
                 OnException.OnNext(e);
             }
+        }
+
+        private void LoadContainerImpl(AudioContainer container)
+        {
+            AudioContainer = container ?? throw new ArgumentNullException(nameof(container));
+            SoundSource = SoundSource.Generated;
+            OnSampleLoaded.OnNext(true);
+            OnSoundSourceChanged.OnNext(SoundSource);
         }
     }
 }

@@ -12,8 +12,8 @@ namespace VoiceChangerTests.SpectrumCreatorTests
         {
             //var audioContainer = AudioLoader.Load(Samples.Wave100hz);
             var container = SampleGenerator.GenerateSineSignal(100, 2048, 2048);
-            var fft = new FastFourierTransformCPU(container);
-            var slice = fft.CreateSpectrum();
+            var fft = new FastFourierTransformCPU(container.Samples).CreateTransform();
+            var slice = FastFourierTransformCPU.ConvertToSpectrumSlice(fft);
             var amplitude50 = slice.GetAmplitudeForFrequency(50);
             var amplitude100 = slice.GetAmplitudeForFrequency(100);
             var amplitude150 = slice.GetAmplitudeForFrequency(150);

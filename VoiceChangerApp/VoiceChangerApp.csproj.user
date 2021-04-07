@@ -16,6 +16,9 @@
     <Compile Update="Views\DataSourceViews\SoundGenerationView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\DataSourceViews\WaveletGenerationView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\RawSoundView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -37,6 +40,9 @@
     <Compile Update="Views\Spectrum3dAnalysisView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\WaveletTransformNumericalView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Resource Update="Styles\Styles.xaml">
@@ -46,6 +52,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\DataSourceViews\SoundGenerationView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DataSourceViews\WaveletGenerationView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\EditorWindow.xaml">
@@ -73,6 +82,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Spectrum3dAnalysisView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\WaveletTransformNumericalView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

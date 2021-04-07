@@ -26,17 +26,31 @@ namespace VoiceChangerApp
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
-            containerRegistry.RegisterSingleton<UserPreferencesModel, UserPreferencesModel>();
+            RegisterModel(containerRegistry);
+            RegisterViewModel(containerRegistry);
+            RegisterView();
+            RegisterGenericLogger(containerRegistry);
+        }
 
+        private static void RegisterView()
+        {
+            ViewModelLocationProvider.Register(typeof(DataSourceView).ToString(), typeof(DataSourceViewModel));
+            ViewModelLocationProvider.Register(typeof(SoundGenerationView).ToString(), typeof(SoundGenerationViewModel));
+            ViewModelLocationProvider.Register(typeof(WaveletGenerationView).ToString(), typeof(WaveletGenerationViewModel));
+        }
+
+        private static void RegisterViewModel(IContainerRegistry containerRegistry)
+        {
             containerRegistry.Register<DataSourceViewModel, DataSourceViewModel>();
             containerRegistry.Register<EditorWindowViewModel, EditorWindowViewModel>();
             containerRegistry.Register<RawSoundViewModel, RawSoundViewModel>();
+            containerRegistry.Register<WaveletGenerationViewModel, WaveletGenerationViewModel>();
+        }
 
-            ViewModelLocationProvider.Register(typeof(DataSourceView).ToString(), typeof(DataSourceViewModel));
-            ViewModelLocationProvider.Register(typeof(SoundGenerationView).ToString(), typeof(SoundGenerationViewModel));
-
-            RegisterGenericLogger(containerRegistry);
+        private static void RegisterModel(IContainerRegistry containerRegistry)
+        {
+            containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
+            containerRegistry.RegisterSingleton<UserPreferencesModel, UserPreferencesModel>();
         }
 
         private static void RegisterGenericLogger(IContainerRegistry containerRegistry)

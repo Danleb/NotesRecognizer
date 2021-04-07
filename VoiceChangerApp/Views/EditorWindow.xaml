@@ -1,13 +1,12 @@
 ﻿<Window x:Class="VoiceChangerApp.Views.EditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VoiceChangerApp.Views"
-        xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
-        xmlns:dataViews="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
         xmlns:prism="http://prismlibrary.com/"
-        xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+        xmlns:local="clr-namespace:VoiceChangerApp.Views"
+        xmlns:dataViews="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DataContext="{d:DesignInstance {x:Type vm:EditorWindowViewModel}, IsDesignTimeCreatable=True}"
@@ -25,10 +24,10 @@
         <TabControl x:Name="TabControl" SelectedIndex="1">
             <TabItem>
                 <TabItem.Header>
-                    <Label Content="Data source"></Label>
+                    <Label Content="Data source"/>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <dataViews:DataSourceView></dataViews:DataSourceView>
+                    <dataViews:DataSourceView/>
                 </TabItem.Content>
             </TabItem>
 
@@ -37,13 +36,13 @@
                     <Label Content="Signalgram"></Label>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <local:RawSoundView x:Name="RawSoundView"></local:RawSoundView>
+                    <local:RawSoundView x:Name="RawSoundView"/>
                 </TabItem.Content>
             </TabItem>
 
             <TabItem>
                 <TabItem.Header>
-                    <Label Content="Fourier frequency-amplitude view"></Label>
+                    <Label Content="Fourier frequency-amplitude view"/>
                 </TabItem.Header>
                 <TabItem.Content>
                     <local:Spectrum2dAnalysisView/>
@@ -52,7 +51,7 @@
 
             <TabItem>
                 <TabItem.Header>
-                    <Label Content="Spectrum 3d view"></Label>
+                    <Label Content="Spectrum 3d view"/>
                 </TabItem.Header>
                 <TabItem.Content>
                     <local:Spectrum3dAnalysisView/>
@@ -61,10 +60,19 @@
 
             <TabItem>
                 <TabItem.Header>
-                    <Label Content="Notes recognizing"></Label>
+                    <Label Content="Wavelet transform numerical"/>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <Label Content="Placeholder"></Label>
+                    <local:WaveletTransformNumericalView/>
+                </TabItem.Content>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <Label Content="Notes recognizing"/>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Label Content="Placeholder"/>
                 </TabItem.Content>
             </TabItem>
         </TabControl>

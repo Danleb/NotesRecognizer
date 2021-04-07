@@ -1,30 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
-using VoiceChanger.FormatParser;
 
 namespace VoiceChanger.SpectrumCreator
 {
     /// <summary>
-    /// Implementation of the Cooley–Tukey FFT algorithm, accepting only sequencies with length as power of 2.
+    /// Implementation of the Cooley–Tukey FFT algorithm.
     /// </summary>
     public class FastFourierTransformCPU
     {
-        public FastFourierTransformCPU(AudioContainer audioContainer)
+        public FastFourierTransformCPU(float[] array)
         {
-            AudioContainer = audioContainer;
+            Data = array.Select(v => new Complex(v, 0)).ToArray();
         }
 
-        public AudioContainer AudioContainer { get; }
-
-        public SpectrumSlice CreateSpectrum()
+        public FastFourierTransformCPU(Complex[] array)
         {
-            return CreateSpectrum(0, AudioContainer.SamplesCount);
+            Data = array;
         }
 
-        public unsafe SpectrumSlice CreateSpectrum(int startIndex, int length)
+        public Complex[] Data { get; }
+
+        public Complex[] CreateTransform(bool forward = true)
         {
-            if (startIndex + length > AudioContainer.SamplesCount)
+            return CreateTransform(0, Data.Length, forward);
+        }
+
+        public Complex[] CreateTransformZeroPadded(bool forward = true)
+        {
+            var power = (int)Math.Round(Math.Log2(Data.Length));
+            if ((int)Math.Pow(2, power) < Data.Length)
+            {
+                power++;
+            }
+            var length = (int)Math.Pow(2, power);
+
+            var x = new Complex[length];
+            for (var i = 0; i < Data.Length; i++)
+            {
+                x[i] = Data[i];
+            }
+            for (var i = Data.Length; i < length; i++)
+            {
+                x[i] = 0;
+            }
+
+            return ExecuteFFT(x, power, forward);
+        }
+
+        public Complex[] CreateTransform(int startIndex, int length, bool forward = true)
+        {
+            if (startIndex + length > Data.Length)
             {
                 throw new IndexOutOfRangeException($"startIndex + length > AudioContainer.SamplesCount");
             }
@@ -38,8 +65,15 @@ namespace VoiceChanger.SpectrumCreator
             var x = new Complex[length];
             for (var i = 0; i < length; i++)
             {
-                x[i] = new Complex(AudioContainer.Samples[startIndex + i], 0.0);
+                x[i] = Data[i];
             }
+
+            return ExecuteFFT(x, T, forward);
+        }
+
+        public static unsafe Complex[] ExecuteFFT(Complex[] x, int T, bool forward)
+        {
+            bool complement = !forward;
 
             uint I, J, N, Nd2, k, m, mpNd2, Skew;
             byte* Ic = (byte*)&I;
@@ -81,10 +115,11 @@ namespace VoiceChanger.SpectrumCreator
                 //WN = W(1, N) = exp(-2*pi*j/N)
                 //WN = *pWN;
                 WN = W2n[pWN_Index];
-                //if (complement)
-                //{
-                //    WN.im = -WN.im;
-                //}
+                if (complement)
+                {
+                    //WN.Imaginary = -WN.Imaginary;
+                    WN = new Complex(WN.Real, -WN.Imaginary);
+                }
 
                 uint Warray_Index;
                 //for (Warray = Wstore, k = 0; k < Nd2; k++, Warray += Skew)
@@ -114,6 +149,13 @@ namespace VoiceChanger.SpectrumCreator
                 }
             }
 
+            return x;
+        }
+
+        public static SpectrumSlice ConvertToSpectrumSlice(Complex[] x)
+        {
+            int Nmax = x.Length;
+
             var list = new List<FrequencyAmplitudeData>();
             for (var i = 0; i < Nmax / 2; i++)
             {
@@ -139,7 +181,7 @@ namespace VoiceChanger.SpectrumCreator
             return number == 1;
         }
 
-        private static byte[] Reverse256 = {
+        private static readonly byte[] Reverse256 = {
             0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
             0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
             0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
@@ -176,7 +218,7 @@ namespace VoiceChanger.SpectrumCreator
 
         //This is array exp(-2*pi*j/2^n) for n= 1,...,32
         //exp(-2*pi*j/2^n) = Complex( cos(2*pi/2^n), -sin(2*pi/2^n) )
-        private static Complex[] W2n = {
+        private static readonly Complex[] W2n = {
             new Complex(-1.00000000000000000000000000000000,  0.00000000000000000000000000000000), // W2 calculator (copy/paste) : po, ps
             new Complex( 0.00000000000000000000000000000000, -1.00000000000000000000000000000000), // W4: p/2=o, p/2=s
             new Complex( 0.70710678118654752440084436210485, -0.70710678118654752440084436210485), // W8: p/4=o, p/4=s
