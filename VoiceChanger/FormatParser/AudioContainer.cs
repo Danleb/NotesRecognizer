@@ -7,7 +7,11 @@ namespace VoiceChanger.FormatParser
     {
         public AudioContainer(float[] samples, int sampleRate)
         {
-            throw new NotImplementedException();
+            Samples = samples;
+            SampleRate = sampleRate;
+            Duration = (float)(samples.Length * (1.0 / SampleRate));
+
+            SetMinMax();
         }
 
         public AudioContainer(float duration, int sampleRate, float[] samples)
@@ -22,8 +26,7 @@ namespace VoiceChanger.FormatParser
                 throw new Exception();
             }
 
-            Min = Samples.Min();
-            Max = Samples.Max();
+            SetMinMax();
         }
 
         public float Duration { get; private set; }
@@ -43,6 +46,12 @@ namespace VoiceChanger.FormatParser
         public void Normalize()
         {
             Samples = Samples.Select(v => v / Max).ToArray();
+            Min = Samples.Min();
+            Max = Samples.Max();
+        }
+
+        private void SetMinMax()
+        {
             Min = Samples.Min();
             Max = Samples.Max();
         }

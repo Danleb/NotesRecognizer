@@ -11,7 +11,7 @@ namespace VoiceChangerTests.SpectrumCreatorTests
         public void Sinus100Hz_Spectrum()
         {
             //var audioContainer = AudioLoader.Load(Samples.Wave100hz);
-            var container = SampleGenerator.GenerateSineSignal(100, 2048, 2048);
+            var container = SampleGenerator.GenerateSineSignalContainer(100, 2048, 2048);
             var fft = new FastFourierTransformCPU(container.Samples).CreateTransform();
             var slice = FastFourierTransformCPU.ConvertToSpectrumSlice(fft);
             var amplitude50 = slice.GetAmplitudeForFrequency(50);

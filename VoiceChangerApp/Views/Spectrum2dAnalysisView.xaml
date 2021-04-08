@@ -36,7 +36,7 @@
                 <Button Margin="5" Content="Generate signal common spectrum" Command="{Binding CalculateSpectrum2dCommand}" HorizontalAlignment="Left"/>
             </StackPanel>
 
-            <soundViews:Spectrum2dRenderView x:Name="Spectrum2dRenderView" SpectrumSlice="{Binding CommonSignalSpectrum}"/>
+            <soundViews:Spectrum2dRenderView SpectrumSlice="{Binding CommonSignalSpectrum}"/>
         </DockPanel>
     </Grid>
 </UserControl>

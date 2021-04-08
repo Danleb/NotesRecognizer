@@ -1,5 +1,8 @@
 ﻿using SharpGL;
+using SharpGL.WPF;
 using System;
+using System.Numerics;
+using System.Windows.Media;
 using VoiceChangerApp.Utils;
 using AppResources = VoiceChangerApp.Resources;
 
@@ -7,25 +10,37 @@ namespace VoiceChangerApp.Views.SoundViews
 {
     public class CoordinateGridDrawer : IRenderable
     {
-        private const int LinesCount = 100;
+        private const int LinesCount = 600;
+
+        private readonly OpenGLControl _openGLControl;
         private readonly OpenGL _gl;
         private readonly uint[] _temp = new uint[5];
         private readonly uint _program;
+
         private uint _vbo;
         private uint _vao;
         private float[] _linesCoordinates;
         private int _mvpMatrixLocation;
         private int _verticesCount;
 
-        public CoordinateGridDrawer(OpenGL openGL)
+        public CoordinateGridDrawer(OpenGLControl openGLControl)
         {
-            _gl = openGL;
+            _openGLControl = openGLControl;
+            _gl = openGLControl.OpenGL;
             _program = _gl.CompileProgram(AppResources.CoordinateGrid_vert, AppResources.CoordinateGrid_frag);
             _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
             InitializeDynamicData();
         }
 
         public OrthographicViewportMatrix Viewport { get; set; }
+
+        public bool ShowTickLabels { get; set; } = true;
+
+        public Color GridColor { get; set; } = Color.FromRgb(255, 255, 255);
+
+        public Color TickLabelColor { get; set; } = Color.FromRgb(255, 255, 255);
+
+        public float TickLabelFontSize { get; set; } = 20;
 
         public bool IsInitialized()
         {
@@ -80,6 +95,11 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
         }
 
+        public void InitializeGrid(float duration)
+        {
+
+        }
+
         public void Render()
         {
             if (!IsInitialized())
@@ -99,6 +119,8 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl.UseProgram(OpenGLUtils.NO_PROGRAM);
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
             _gl.BindVertexArray(OpenGLUtils.NO_BUFFER);
+
+            DrawTickLabels();
         }
 
         public void RequestRedraw()
@@ -111,6 +133,25 @@ namespace VoiceChangerApp.Views.SoundViews
 
 
 
+        }
+
+        private void DrawTickLabels()
+        {
+            if (!ShowTickLabels)
+            {
+                return;
+            }
+
+            int timeStart = (int)Math.Ceiling(Viewport.Left);
+            int timeEnd = (int)Math.Floor(Viewport.Right);
+            for (int time = timeStart; time <= timeEnd; time++)
+            {
+                var faceName = $"TickLabel #{time}";
+                var position = new Vector2(time, 0);
+                var projectedX = Viewport.Transform(position).X;
+                var x = (int)Math.Round(((projectedX + 1.0) / 2.0) * _openGLControl.RenderSize.Width);
+                _gl.DrawText(x, 10, 1, 0, 1, faceName, TickLabelFontSize, time.ToString());
+            }
         }
     }
 }

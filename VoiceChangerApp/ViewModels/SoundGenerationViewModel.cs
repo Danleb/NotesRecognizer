@@ -1,6 +1,8 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using VoiceChanger.Utils;
 using VoiceChangerApp.Models;
 
@@ -26,14 +28,7 @@ namespace VoiceChangerApp.ViewModels
                 var settings = new SampleGeneratorSettings
                 {
                     SampleRate = SampleRate,
-                    Datas = new List<SignalGenerationData>
-                    {
-                        new SignalGenerationData
-                        {
-                            Duration = Duration,
-                            Frequency = SignalFrequency
-                        }
-                    }
+                    Datas = _soundDatas.ToList()
                 };
                 SoundDataModel.GenerateSample.OnNext(settings);
             });
@@ -48,7 +43,23 @@ namespace VoiceChangerApp.ViewModels
 
             });
 
-            SignalFrequency = 1;
+            AddData = new DelegateCommand(() =>
+            {
+                var data = new SignalGenerationData
+                {
+                    Duration = Duration,
+                    Frequency = SignalFrequency,
+                    TimeStart = -1
+                };
+                _soundDatas.Add(data);
+            });
+
+            ClearAll = new DelegateCommand(() =>
+            {
+                _soundDatas.Clear();
+            });
+
+            SignalFrequency = 10;
             SampleRate = 1024;
             Duration = 128;
         }
@@ -90,10 +101,19 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _generationState, value); }
         }
 
+        private ObservableCollection<SignalGenerationData> _soundDatas = new();
+        public ObservableCollection<SignalGenerationData> SoundDatas
+        {
+            get { return _soundDatas; }
+            set { SetProperty(ref _soundDatas, value); }
+        }
+
         #endregion
 
         #region Commands
 
+        public DelegateCommand AddData { get; }
+        public DelegateCommand ClearAll { get; }
         public DelegateCommand GenerateSample { get; }
         public DelegateCommand LoadToAnalysis { get; }
         public DelegateCommand SaveToFile { get; }

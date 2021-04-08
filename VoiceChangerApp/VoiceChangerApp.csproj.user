@@ -19,6 +19,9 @@
     <Compile Update="Views\DataSourceViews\WaveletGenerationView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\NotesRecognizingView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\RawSoundView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -31,13 +34,13 @@
     <Compile Update="Views\SoundViews\Spectrum2dRenderView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\SoundViews\Spectrum3dRenderView.xaml.cs">
+    <Compile Update="Views\SoundViews\ScalogramRenderView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\Spectrum2dAnalysisView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Spectrum3dAnalysisView.xaml.cs">
+    <Compile Update="Views\ScalogramAnalysisView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\WaveletTransformNumericalView.xaml.cs">
@@ -63,6 +66,9 @@
     <Page Update="Views\DataSourceViews\DataSourceView.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Views\NotesRecognizingView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\RawSoundView.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -75,13 +81,13 @@
     <Page Update="Views\SoundViews\Spectrum2dRenderView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\SoundViews\Spectrum3dRenderView.xaml">
+    <Page Update="Views\SoundViews\ScalogramRenderView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Spectrum2dAnalysisView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\Spectrum3dAnalysisView.xaml">
+    <Page Update="Views\ScalogramAnalysisView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\WaveletTransformNumericalView.xaml">

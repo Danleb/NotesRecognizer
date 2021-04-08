@@ -11,6 +11,18 @@ namespace VoiceChangerApp.Models
 
         public SoundSource LastSoundSourceTab { get; set; }
 
+        public Theme Theme { get; set; }
 
+        #region Commands
+
+
+
+        #endregion
+
+        #region Events
+
+
+
+        #endregion
     }
 }

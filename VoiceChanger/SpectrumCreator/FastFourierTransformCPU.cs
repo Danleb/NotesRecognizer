@@ -8,7 +8,7 @@ namespace VoiceChanger.SpectrumCreator
     /// <summary>
     /// Implementation of the Cooley–Tukey FFT algorithm.
     /// </summary>
-    public class FastFourierTransformCPU
+    public class FastFourierTransformCPU : IFourierTransform
     {
         public FastFourierTransformCPU(float[] array)
         {

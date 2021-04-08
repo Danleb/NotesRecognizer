@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VoiceChangerApp.Views"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
-             xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
              xmlns:soundViews="clr-namespace:VoiceChangerApp.Views.SoundViews"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
@@ -15,7 +14,7 @@
     <Grid>
         <DockPanel>
             <soundViews:NavigationBar DockPanel.Dock="Bottom"/>
-            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="5" LineColor="#FFFFFF"></soundViews:SignalgramView>
+            <soundViews:SignalgramView x:Name="SignalgramView" AudioContainer="{Binding AudioContainer}" LineWidth="4" LineColor="#FFFFFF"></soundViews:SignalgramView>
         </DockPanel>
     </Grid>
 </UserControl>

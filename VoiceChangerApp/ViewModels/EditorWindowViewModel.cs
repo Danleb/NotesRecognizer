@@ -13,16 +13,16 @@ namespace VoiceChangerApp.ViewModels
 
         }
 
-        public EditorWindowViewModel(SoundDataModel soundDataModel)
+        public EditorWindowViewModel(ErrorModel errorModel)
         {
-            SoundDataModel = soundDataModel;
+            ErrorModel = errorModel;
 
-            SoundDataModel.OnException.Subscribe(e =>
+            ErrorModel.OnError.Subscribe(e =>
             {
                 MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             });
         }
 
-        public SoundDataModel SoundDataModel { get; }
+        public ErrorModel ErrorModel { get; }
     }
 }

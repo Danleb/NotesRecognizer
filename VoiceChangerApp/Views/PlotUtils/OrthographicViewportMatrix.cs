@@ -52,13 +52,13 @@ namespace VoiceChangerApp.Views.SoundViews
 
         public void UpdateMatrix()
         {
-            Matrix[0 * 4 + 0] = (2 / (Right - Left));// * ScaleX;
+            Matrix[0 * 4 + 0] = 2 / (Right - Left);
             Matrix[0 * 4 + 1] = 0;
             Matrix[0 * 4 + 2] = 0;
             Matrix[0 * 4 + 3] = 0;
 
             Matrix[1 * 4 + 0] = 0;
-            Matrix[1 * 4 + 1] = 2 / (Top - Bottom);// * ScaleY;
+            Matrix[1 * 4 + 1] = 2 / (Top - Bottom);
             Matrix[1 * 4 + 2] = 0;
             Matrix[1 * 4 + 3] = 0;
 

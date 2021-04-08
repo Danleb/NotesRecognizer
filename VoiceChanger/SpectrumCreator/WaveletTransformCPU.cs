@@ -13,20 +13,16 @@ namespace VoiceChanger.SpectrumCreator
             AudioContainer = audioContainer;
         }
 
-        public float[] CreateScalogram(float sinusoidFrequency)
+        public static float[] CreateScalogram(float frequency, Complex[] signalFT, int sampleRate, int cyclesCount, double sigma)
         {
-            var signalFFT = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
-            var pointsCount = signalFFT.Length;
-
-            var waveletCyclesCount = 5;
-            var sigma = 6;
-            var wavelet = GenerateMorletWavelet(sinusoidFrequency, AudioContainer.SampleRate, waveletCyclesCount, pointsCount, sigma);
+            var pointsCount = signalFT.Length;
+            var wavelet = GenerateMorletWavelet(frequency, sampleRate, cyclesCount, pointsCount, sigma);
             var kernelFFT = new FastFourierTransformCPU(wavelet).CreateTransformZeroPadded();
 
             var pointwiseMultiplication = new Complex[pointsCount];
             for (int i = 0; i < pointsCount; i++)
             {
-                pointwiseMultiplication[i] = signalFFT[i] * kernelFFT[i];
+                pointwiseMultiplication[i] = signalFT[i] * kernelFFT[i];
             }
 
             var inverseFFT = new FastFourierTransformCPU(pointwiseMultiplication).CreateTransform(false);
@@ -43,6 +39,14 @@ namespace VoiceChanger.SpectrumCreator
             }
 
             return amplitudes;
+        }
+
+        public float[] CreateScalogram(float sinusoidFrequency)
+        {
+            var signalFFT = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
+            var waveletCyclesCount = 5;
+            var sigma = 6;
+            return CreateScalogram(sinusoidFrequency, signalFFT, AudioContainer.SampleRate, waveletCyclesCount, sigma);
         }
 
         public static Complex[] GenerateMorletWavelet(float sinusoidFrequency, int sampleRate, int cycles, int pointsCount, double sigma)

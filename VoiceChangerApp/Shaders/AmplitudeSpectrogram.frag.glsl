@@ -29,7 +29,17 @@ int getFrequencyIndex(float u)
 void main()
 {
 	int currentFrequencyIndex = getFrequencyIndex(texCoordV.x);
-	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];	
+	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];
+	//int frequenciesInOneTexel = 
+	/*for (int i = currentFrequencyIndex + 1; i < currentFrequencyIndex + ; ++i)
+	{
+		float currentAmplitude = AmplitudesBuffer.data[i];
+		if (currentAmplitude > amplitude)
+		{
+			amplitude = currentAmplitude;
+		}
+	}*/
+
 	float pixelRelativeAmplitude = mix(minAmplitude, maxAmplitude, texCoordV.y);
 
 	int mousePointerFrequencyIndex = getFrequencyIndex(mouseUV.x);

@@ -113,6 +113,16 @@ namespace VoiceChangerApp {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Scalogram_frag {
+            get {
+                object obj = ResourceManager.GetObject("Scalogram_frag", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Signalgram_frag {
             get {
                 object obj = ResourceManager.GetObject("Signalgram_frag", resourceCulture);
@@ -126,16 +136,6 @@ namespace VoiceChangerApp {
         internal static byte[] SimpleMatrix_vert {
             get {
                 object obj = ResourceManager.GetObject("SimpleMatrix_vert", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Spectrogram3d_frag {
-            get {
-                object obj = ResourceManager.GetObject("Spectrogram3d_frag", resourceCulture);
                 return ((byte[])(obj));
             }
         }

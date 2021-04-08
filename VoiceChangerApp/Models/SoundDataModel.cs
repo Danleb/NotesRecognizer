@@ -14,10 +14,12 @@ namespace VoiceChangerApp.Models
     public class SoundDataModel : BindableBase
     {
         private readonly ILogger _logger;
+        private readonly ErrorModel _errorModel;
 
-        public SoundDataModel(ILogger<SoundDataModel> logger)
+        public SoundDataModel(ILogger<SoundDataModel> logger, ErrorModel errorModel)
         {
             _logger = logger;
+            _errorModel = errorModel;
             LoadFile.Subscribe(LoadFileImpl);
             LoadContainer.Subscribe(LoadContainerImpl);
             CalculateSampleSignalSpectrum.Subscribe(_ => CalculateCommonSignalSpectrumImpl());
@@ -28,22 +30,20 @@ namespace VoiceChangerApp.Models
 
         #region Commands
 
-        public Subject<string> LoadFile = new();
-        public Subject<AudioContainer> LoadContainer = new();
-        public Subject<bool> CalculateSampleSignalSpectrum = new();
-        public Subject<SampleGeneratorSettings> GenerateSample = new();
-        public Subject<bool> SaveCurrentSampleToFile = new();
+        public readonly Subject<string> LoadFile = new();
+        public readonly Subject<AudioContainer> LoadContainer = new();
+        public readonly Subject<bool> CalculateSampleSignalSpectrum = new();
+        public readonly Subject<SampleGeneratorSettings> GenerateSample = new();
+        public readonly Subject<bool> SaveCurrentSampleToFile = new();
 
         #endregion
 
         #region Events
 
-
-        public Subject<bool> OnSampleLoaded = new();
-        public Subject<bool> OnCommonSignalSpectrumCalculated = new();
-        public Subject<Exception> OnException = new();
-        public Subject<bool> OnIsLoading = new();
-        public Subject<SoundSource> OnSoundSourceChanged = new();
+        public readonly Subject<bool> OnSampleLoaded = new();
+        public readonly Subject<bool> OnCommonSignalSpectrumCalculated = new();
+        public readonly Subject<bool> OnIsLoading = new();
+        public readonly Subject<SoundSource> OnSoundSourceChanged = new();
 
         #endregion
 
@@ -85,7 +85,7 @@ namespace VoiceChangerApp.Models
                     {
                         TimeStart = 0,
                         Duration = 8,
-                        Frequency = 10,                        
+                        Frequency = 10,
                     }
                 }
             };
@@ -114,7 +114,7 @@ namespace VoiceChangerApp.Models
             {
                 AudioContainer = null;
                 OnSampleLoaded.OnNext(false);
-                OnException.OnNext(e);
+                _errorModel.RaiseError(e);
             }
             finally
             {
@@ -136,7 +136,7 @@ namespace VoiceChangerApp.Models
             {
                 AudioContainer = null;
                 OnSampleLoaded.OnNext(false);
-                OnException.OnNext(e);
+                _errorModel.RaiseError(e);
             }
         }
 
@@ -164,7 +164,7 @@ namespace VoiceChangerApp.Models
             catch (Exception e)
             {
                 OnCommonSignalSpectrumCalculated.OnNext(false);
-                OnException.OnNext(e);
+                _errorModel.RaiseError(e);
             }
         }
 

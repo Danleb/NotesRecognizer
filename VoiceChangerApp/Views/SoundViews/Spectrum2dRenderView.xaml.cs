@@ -242,7 +242,8 @@ namespace VoiceChangerApp.Views.SoundViews
             GL.UseProgram(OpenGLUtils.NO_PROGRAM);
         }
 
-        private void OpenGLControl_Resized(object sender, SharpGL.WPF.OpenGLRoutedEventArgs args)
+        //todo put to base
+        private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs args)
         {
             RequestRedraw();
         }

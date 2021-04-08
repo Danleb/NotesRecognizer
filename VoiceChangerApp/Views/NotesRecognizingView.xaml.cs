@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace VoiceChangerApp.Views
 {
     /// <summary>
-    /// Interaction logic for Spectrum3dAnalysisView.xaml
+    /// Interaction logic for NotesRecognizingView.xaml
     /// </summary>
-    public partial class Spectrum3dAnalysisView : UserControl
+    public partial class NotesRecognizingView : UserControl
     {
-        public Spectrum3dAnalysisView()
+        public NotesRecognizingView()
         {
             InitializeComponent();
         }

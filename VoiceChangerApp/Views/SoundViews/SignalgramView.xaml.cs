@@ -158,6 +158,7 @@ namespace VoiceChangerApp.Views.SoundViews
             _viewport.UpdateMatrix();
 
             _coordinateGridDrawer.Viewport = _viewport;
+            _coordinateGridDrawer.InitializeGrid(AudioContainer.Duration);
 
             if (_plotNavigator == null)
             {
@@ -202,7 +203,7 @@ namespace VoiceChangerApp.Views.SoundViews
             CheckAndInitProgram();
             if (_coordinateGridDrawer == null)
             {
-                _coordinateGridDrawer = new CoordinateGridDrawer(GL);
+                _coordinateGridDrawer = new CoordinateGridDrawer(OpenGLControl);
             }
         }
 
@@ -236,7 +237,7 @@ namespace VoiceChangerApp.Views.SoundViews
                 _gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             }
 
-            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);            
+            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
 
             _gl.UseProgram(_program);
             _gl.UniformMatrix4(_mvpMatrixLocation, 1, false, _viewport.Matrix);

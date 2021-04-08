@@ -25,50 +25,66 @@
             <!--<Label Content="Signal type:"/>
             <ComboBox Margin="5" />-->
 
-            <Label Content="Signal angular frequency, Hz:"/>
-            <TextBox Style="{StaticResource TextBoxValidating}">
-                <TextBox.Text>
-                    <Binding Path="SignalFrequency" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:PositiveIntValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Signal angular frequency, Hz:"/>
+                <TextBox Style="{StaticResource TextBoxValidating}">
+                    <TextBox.Text>
+                        <Binding Path="SignalFrequency" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <vr:PositiveIntValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
 
-            <Label Content="Duration, seconds:"/>
-            <TextBox Style="{StaticResource TextBoxValidating}">
-                <TextBox.Text>
-                    <Binding Path="Duration" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:PositiveNumberValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Duration, seconds:"/>
+                <TextBox Style="{StaticResource TextBoxValidating}">
+                    <TextBox.Text>
+                        <Binding Path="Duration" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <vr:PositiveNumberValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
 
-            <Label Content="Sample rate, Hz:"/>
-            <TextBox Style="{StaticResource TextBoxValidating}">
-                <TextBox.Text>
-                    <Binding Path="SampleRate" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:PositiveNumberValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Sample rate, Hz:"/>
+                <TextBox Style="{StaticResource TextBoxValidating}">
+                    <TextBox.Text>
+                        <Binding Path="SampleRate" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <vr:PositiveNumberValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
 
-            <Label Content="State:"/>
-            <Label Content="{Binding GenerationState}"/>
+            <Button Command="{Binding AddData}" Content="Add" Margin="5" Padding="20, 2" HorizontalAlignment="Left"/>
+            <Button Command="{Binding ClearAll}" Content="Clear all" Margin="5" Padding="20, 2" HorizontalAlignment="Left"/>
 
             <Label Content="Datas:"/>
-            <ListBox>
-                
-            </ListBox>
-            
-            <Button Command="{Binding GenerateSample}" Margin="5" Content="Generate and load"/>
-            <!--<Button Margin="5" Content="Load generated sample to analysis"/>-->
-            <Button Command="{Binding SaveToFile}" Margin="5" Content="Save current sample to file"/>
+            <ListView ItemsSource="{Binding SoundDatas}" Margin="5">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=TimeStart}">#</GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Frequency}">Frequency</GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Duration}">Duration</GridViewColumn>                        
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="State:"/>
+                <Label Content="{Binding GenerationState}"/>
+            </StackPanel>
+
+            <Button Command="{Binding GenerateSample}" Margin="5" Content="Generate and load" Padding="10,2" HorizontalAlignment="Left"/>
+            <Button Command="{Binding SaveToFile}" Margin="5" Content="Save current sample to file" HorizontalAlignment="Left" Padding="10,2"/>
         </StackPanel>
     </Grid>
 </UserControl>
