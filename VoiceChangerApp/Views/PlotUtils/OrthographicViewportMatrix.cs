@@ -4,6 +4,27 @@ namespace VoiceChangerApp.Views.SoundViews
 {
     public class OrthographicViewportMatrix
     {
+        private static void DoScale(float newScale, float screenRatio, float borderLeft, float width, ref float left, ref float right)
+        {
+            var oldWidth = width;
+            var newWidth = oldWidth * newScale;
+            var scrollCenter = left * (1.0f - screenRatio) + right * screenRatio;
+
+            var leftShift = newWidth * screenRatio;
+            left = scrollCenter - leftShift;
+
+            if (left < borderLeft)
+            {
+                left = borderLeft;
+                right = left + newWidth;
+            }
+            else
+            {
+                var rightShift = newWidth * (1.0f - screenRatio);
+                right = scrollCenter + rightShift;
+            }
+        }
+
         public float[] Matrix = new float[16];
 
         private float _left;
@@ -73,25 +94,15 @@ namespace VoiceChangerApp.Views.SoundViews
             Matrix[3 * 4 + 3] = 1;
         }
 
-        public void DoScaleX(float newScale)
+        public void DoScaleX(float newScale, BoundSquare boundSquare, float screenRatio = 0.5f)
         {
-            var oldWidth = Width;
-            var newWidth = oldWidth * newScale;
-            var halfWidth = newWidth / 2.0f;
-            var center = CenterX;
-            Left = center - halfWidth;
-            Right = center + halfWidth;
+            DoScale(newScale, screenRatio, boundSquare.Left, Width, ref _left, ref _right);
             UpdateMatrix();
         }
 
-        public void DoScaleY(float newScale)
+        public void DoScaleY(float newScale, BoundSquare boundSquare, float screenRatio = 0.5f)
         {
-            var oldHeight = Height;
-            var newHeight = oldHeight * newScale;
-            var halfHeight = newHeight / 2.0f;
-            var center = CenterY;
-            Bottom = center - halfHeight;
-            Top = center + halfHeight;
+            DoScale(newScale, screenRatio, boundSquare.Bottom, Height, ref _bottom, ref _top);
             UpdateMatrix();
         }
 

@@ -38,6 +38,7 @@ namespace VoiceChangerApp.Views.SoundViews
         private int _maxAmplitudeLocation = -1;
         private int _mvpMatrixLocation = -1;
         private int _mousePositionLocation = -1;
+        private int _valuesInPixelLocation = -1;
         private OrthographicViewportMatrix _viewport;
         private PlotNavigator _navigator;
 
@@ -126,6 +127,7 @@ namespace VoiceChangerApp.Views.SoundViews
                 _maxAmplitudeLocation = GL.GetUniformLocation(_program, "maxAmplitude");
                 _mvpMatrixLocation = GL.GetUniformLocation(_program, "MVP");
                 _mousePositionLocation = GL.GetUniformLocation(_program, "mouseUV");
+                _valuesInPixelLocation = GL.GetUniformLocation(_program, "valuesInPixel");
                 return true;
             }
             catch (Exception exception)
@@ -232,6 +234,12 @@ namespace VoiceChangerApp.Views.SoundViews
             GL.Uniform1(_endFrequencyElementIndexLocation, _endFrequencyElementIndex);
             GL.Uniform1(_minAmplitudeLocation, SpectrumSlice.MinAmplitude);
             GL.Uniform1(_maxAmplitudeLocation, SpectrumSlice.MaxAmplitude);
+
+            var visibilityRatio = _viewport.Width / 2.0f;
+            var valuesInScreen = SpectrumSlice.FrequencyDataCount * visibilityRatio;
+            var valuesInPixel = (int)Math.Ceiling(valuesInScreen / OpenGLControl.RenderSize.Width);
+            GL.Uniform1(_valuesInPixelLocation, valuesInPixel);
+
             GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _amplitudeBuffer);
 
             GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, 6);

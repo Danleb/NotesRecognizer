@@ -9,6 +9,7 @@ uniform float minAmplitude;
 uniform float maxAmplitude;
 uniform vec2 mouseUV;
 uniform mat4 MVP;
+uniform int valuesInPixel;
 
 const vec4 background = vec4(0.1, 0.1, 0.1, 1.0);
 const vec4 diagram = vec4(0.9, 0.9, 0.9, 1.0);
@@ -28,17 +29,17 @@ int getFrequencyIndex(float u)
 
 void main()
 {
-	int currentFrequencyIndex = getFrequencyIndex(texCoordV.x);
+	int currentFrequencyIndex = getFrequencyIndex(texCoordV.x);//set index
 	float amplitude = AmplitudesBuffer.data[currentFrequencyIndex];
-	//int frequenciesInOneTexel = 
-	/*for (int i = currentFrequencyIndex + 1; i < currentFrequencyIndex + ; ++i)
+
+	for (int i = currentFrequencyIndex + 1; i < currentFrequencyIndex + valuesInPixel; ++i)
 	{
 		float currentAmplitude = AmplitudesBuffer.data[i];
 		if (currentAmplitude > amplitude)
 		{
 			amplitude = currentAmplitude;
 		}
-	}*/
+	}
 
 	float pixelRelativeAmplitude = mix(minAmplitude, maxAmplitude, texCoordV.y);
 

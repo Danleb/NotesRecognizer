@@ -8,10 +8,10 @@ namespace VoiceChangerApp.Utils
 {
     public static class OpenGLUtils
     {
-        //public static uint GL_DEBUG_OUTPUT = 
-        public static uint NO_BUFFER = 0;
-        public static uint NO_SHADER = 0;
-        public static uint NO_PROGRAM = 0;
+        //public const uint GL_DEBUG_OUTPUT = 
+        public const uint NO_BUFFER = 0;
+        public const uint NO_SHADER = 0;
+        public const uint NO_PROGRAM = 0;
 
         public static readonly float[] QuadVertexBuffer =
         {

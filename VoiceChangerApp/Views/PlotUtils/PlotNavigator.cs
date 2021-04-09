@@ -53,13 +53,13 @@ namespace VoiceChangerApp.Views.SoundViews
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                //Viewport.ScaleY += diff;
-                Viewport.DoScaleY(1.0f + diff);
+                var screenRatio = 1.0f - (float)(e.GetPosition(Control).Y / Control.ActualHeight);
+                Viewport.DoScaleY(1.0f + diff, BoundSquare, screenRatio);
             }
             else
             {
-                //Viewport.ScaleX += diff;
-                Viewport.DoScaleX(1.0f + diff);
+                var screenRatio = (float)(e.GetPosition(Control).X / Control.ActualWidth);
+                Viewport.DoScaleX(1.0f + diff, BoundSquare, screenRatio);
             }
 
             ClampViewport();
