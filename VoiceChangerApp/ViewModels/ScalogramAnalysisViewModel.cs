@@ -1,9 +1,12 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Threading;
 using VoiceChanger.Scalogram;
 using VoiceChangerApp.Models;
 using VoiceChangerApp.Utils;
+using System;
 
 namespace VoiceChangerApp.ViewModels
 {
@@ -24,6 +27,10 @@ namespace VoiceChangerApp.ViewModels
                 }
                 ScalogramModel.CreateScalogram.OnNext(list);
             });
+
+            ScalogramModel.OnScalogramCreated
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(OnScalogramCreated);
 
             ScalogramType = ScalogramType.Linear;
             FrequencyFrom = 100;
@@ -82,5 +89,10 @@ namespace VoiceChangerApp.ViewModels
         public DelegateCommand CreateScalogram { get; }
 
         #endregion
+
+        private void OnScalogramCreated(ScalogramContainer scalogramContainer)
+        {
+            ScalogramContainer = scalogramContainer;
+        }
     }
 }

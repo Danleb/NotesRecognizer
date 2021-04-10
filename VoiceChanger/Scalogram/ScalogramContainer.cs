@@ -1,28 +1,39 @@
 ﻿using System;
+using System.Linq;
 
 namespace VoiceChanger.Scalogram
 {
     public class ScalogramContainer
     {
-        private readonly int _signalsCount;
-
         public ScalogramContainer(int signalsCount, int frequenciesCount)
         {
+            SignalsCount = signalsCount;
+            FrequenciesCount = frequenciesCount;
             ScalogramValues = new float[signalsCount * frequenciesCount];
-            _signalsCount = signalsCount;
         }
 
         public float[] ScalogramValues { get; }
+        public int FrequenciesCount { get; }
+        public int SignalsCount { get; }
 
         public void SetFrequencyData(int frequencyIndex, float[] scalogramRowValues)
         {
-            if (scalogramRowValues.Length != _signalsCount)
+            if (scalogramRowValues.Length != SignalsCount)
             {
                 throw new Exception("scalogramRowValues.Length doesn't equal _signalsCount");
             }
 
-            var indexStart = frequencyIndex * _signalsCount;
+            var indexStart = frequencyIndex * SignalsCount;
             Array.Copy(scalogramRowValues, 0, ScalogramValues, indexStart, scalogramRowValues.Length);
+        }
+
+        public void Normalize()
+        {
+            var max = ScalogramValues.Max();
+            for (int i = 0; i < ScalogramValues.Length; i++)
+            {
+                ScalogramValues[i] /= max;
+            }
         }
     }
 }

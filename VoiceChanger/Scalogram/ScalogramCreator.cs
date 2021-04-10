@@ -29,9 +29,16 @@ namespace VoiceChanger.Scalogram
                 var sigma = 6;
                 var cyclesCount = 5;
                 var scalogram = WaveletTransformCPU.CreateScalogram(frequency, _signalFT, AudioContainer.SampleRate, cyclesCount, sigma);
+                for (int i = 0; i < scalogram.Length / 2; i++)
+                {
+                    var temp = scalogram[i];
+                    scalogram[i] = scalogram[scalogram.Length / 2 + i];
+                    scalogram[scalogram.Length / 2 + i] = temp;
+                }
                 container.SetFrequencyData(frequencyIndex, scalogram);
             }
 
+            container.Normalize();
             return container;
         }
     }

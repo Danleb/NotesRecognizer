@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using VoiceChanger.SpectrumCreator;
 using VoiceChangerApp.Utils;
@@ -47,6 +48,7 @@ namespace VoiceChangerApp.Views.SoundViews
             InitializeComponent();
             UpdateRenderingContext();
             _logger = (ILogger)ContainerLocator.Container.Resolve(typeof(ILogger<SignalgramView>));
+            SelectedValueSignContainer.Visibility = Visibility.Hidden;
         }
 
         [Bindable(true)]
@@ -164,6 +166,7 @@ namespace VoiceChangerApp.Views.SoundViews
             GL.BindVertexArray(_vao);
             GL.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
 
+            //2 float position + 2 float texCoord
             var stride = sizeof(float) * 4;
 
             int positionAttribute = GL.GetAttribLocation(_program, "position");
@@ -217,8 +220,6 @@ namespace VoiceChangerApp.Views.SoundViews
             if (OpenGLControl.IsMouseOver)
             {
                 var mouse = Mouse.GetPosition(OpenGLControl);
-                var bottomLeft = _viewport.Transform(new Vector2(-1, -1));
-                var topRight = _viewport.Transform(new Vector2(1, 1));
                 var pointerScreenCube = new Vector2((float)(mouse.X / OpenGLControl.ActualWidth) * 2 - 1.0f, (float)(1.0f - mouse.Y / OpenGLControl.ActualHeight) * 2 - 1.0f);
                 var pointerCamera = _viewport.InverseTransform(pointerScreenCube);
                 float pointerU = (float)(pointerCamera.X + 1) / 2.0f;
@@ -254,6 +255,23 @@ namespace VoiceChangerApp.Views.SoundViews
         private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs args)
         {
             RequestRedraw();
+        }
+
+        private void MainOpenGLControl_MouseLeave(object sender, MouseEventArgs e)
+        {
+            SelectedValueSignContainer.Visibility = Visibility.Hidden;
+        }
+
+        private void MainOpenGLControl_MouseEnter(object sender, MouseEventArgs e)
+        {
+            SelectedValueSignContainer.Visibility = Visibility.Visible;
+        }
+
+        private void MainOpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            var position = e.GetPosition(OpenGLControl);
+            Canvas.SetLeft(SelectedValueSignContainer, position.X - SelectedValueSignContainer.ActualWidth);
+            Canvas.SetTop(SelectedValueSignContainer, position.Y - SelectedValueSignContainer.ActualHeight);
         }
     }
 }

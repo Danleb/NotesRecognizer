@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Subjects;
 using VoiceChanger.Scalogram;
 using VoiceChanger.SpectrumCreator;
@@ -66,7 +67,13 @@ namespace VoiceChangerApp.Models
 
                 ScalogramContainer = _scalogramCreator.CreateScalogram(frequencies);
 
+                //ScalogramContainer = new ScalogramContainer(10, 2);                
+                //var range = Enumerable.Range(1, 10).Select(v => v / 10.0f).ToArray();
+                //ScalogramContainer.SetFrequencyData(0, range);
+                //ScalogramContainer.SetFrequencyData(1, range.Reverse().ToArray());
+
                 _logger.LogInformation("Finished calculating scalogram.");
+                OnScalogramCreated.OnNext(ScalogramContainer);
             }
             catch (Exception e)
             {

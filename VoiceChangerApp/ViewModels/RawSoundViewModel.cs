@@ -25,10 +25,9 @@ namespace VoiceChangerApp.ViewModels
             OnSampleLoaded(SoundDataModel.IsAudioContainerCreated);
         }
 
-        private void OnSampleLoaded(bool success)
-        {
-            AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
-        }
+        public SoundDataModel SoundDataModel { get; }
+
+        #region Properties
 
         private AudioContainer _audioContainer;
         public AudioContainer AudioContainer
@@ -44,6 +43,11 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _soundViewPosition, value); }
         }
 
-        public SoundDataModel SoundDataModel { get; }
+        #endregion
+
+        private void OnSampleLoaded(bool success)
+        {
+            AudioContainer = SoundDataModel.IsAudioContainerCreated ? SoundDataModel.AudioContainer : null;
+        }
     }
 }

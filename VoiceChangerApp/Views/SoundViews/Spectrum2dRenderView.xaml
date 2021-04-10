@@ -10,6 +10,18 @@
     <Grid>
         <sharpGL:OpenGLControl x:Name="MainOpenGLControl"
                                OpenGLDraw="OpenGLControl_OpenGLDraw"
-                               Resized="OpenGLControl_Resized" />
+                               Resized="OpenGLControl_Resized" 
+                               MouseLeave="MainOpenGLControl_MouseLeave"
+                               MouseEnter="MainOpenGLControl_MouseEnter"
+                               MouseMove="MainOpenGLControl_MouseMove"/>
+
+        <Canvas>
+            <Border BorderBrush="#FF300000" BorderThickness="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" x:Name="SelectedValueSignContainer" Canvas.Left="100" Canvas.Top="100" IsHitTestVisible="False">
+                <StackPanel Background="#FF262626" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Label Content="Frequency: 100" Foreground="White" FontSize="12"/>
+                    <Label Content="Amplitude: 10" Foreground="White" FontSize="12"/>
+                </StackPanel>
+            </Border>
+        </Canvas>        
     </Grid>
 </local:BaseOpenGLRender>
