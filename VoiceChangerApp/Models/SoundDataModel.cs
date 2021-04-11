@@ -159,6 +159,14 @@ namespace VoiceChangerApp.Models
                 //var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransform(0, count);                
                 //CommonSignalSpectrum = fft.CreateSpectrum(0, count);
                 CommonSignalSpectrum = FastFourierTransformCPU.ConvertToSpectrumSlice(fft);
+
+                //todo put out
+                var zeroPaddedDuration = (float)fft.Length / AudioContainer.SampleRate;
+                foreach (var data in CommonSignalSpectrum.Datas)
+                {
+                    data.Frequency /= zeroPaddedDuration;
+                }
+
                 OnCommonSignalSpectrumCalculated.OnNext(true);
             }
             catch (Exception e)

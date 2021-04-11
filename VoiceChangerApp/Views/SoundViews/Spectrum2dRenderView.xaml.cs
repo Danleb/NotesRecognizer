@@ -188,6 +188,11 @@ namespace VoiceChangerApp.Views.SoundViews
             return _amplitudeBuffer != OpenGLUtils.NO_BUFFER;
         }
 
+        private bool IsDataInitialized()
+        {
+            return CheckAndInitializeStaticData() && IsDynamicDataInitialized() && SpectrumSlice != null;
+        }
+
         private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs args)
         {
             if (!IsRendering())
@@ -219,12 +224,8 @@ namespace VoiceChangerApp.Views.SoundViews
 
             if (OpenGLControl.IsMouseOver)
             {
-                var mouse = Mouse.GetPosition(OpenGLControl);
-                var pointerScreenCube = new Vector2((float)(mouse.X / OpenGLControl.ActualWidth) * 2 - 1.0f, (float)(1.0f - mouse.Y / OpenGLControl.ActualHeight) * 2 - 1.0f);
-                var pointerCamera = _viewport.InverseTransform(pointerScreenCube);
-                float pointerU = (float)(pointerCamera.X + 1) / 2.0f;
-                float pointerV = (float)(pointerCamera.Y + 1) / 2.0f;
-                GL.Uniform2(_mousePositionLocation, pointerU, pointerV);
+                var uv = GetUVbyMousePosition();
+                GL.Uniform2(_mousePositionLocation, uv.X, uv.Y);
             }
             else
             {
@@ -262,16 +263,66 @@ namespace VoiceChangerApp.Views.SoundViews
             SelectedValueSignContainer.Visibility = Visibility.Hidden;
         }
 
-        private void MainOpenGLControl_MouseEnter(object sender, MouseEventArgs e)
-        {
-            SelectedValueSignContainer.Visibility = Visibility.Visible;
-        }
-
         private void MainOpenGLControl_MouseMove(object sender, MouseEventArgs e)
         {
+            if (!IsDataInitialized())
+            {
+                return;
+            }
+
             var position = e.GetPosition(OpenGLControl);
-            Canvas.SetLeft(SelectedValueSignContainer, position.X - SelectedValueSignContainer.ActualWidth);
-            Canvas.SetTop(SelectedValueSignContainer, position.Y - SelectedValueSignContainer.ActualHeight);
+            ShowFrequencySign(position);
+        }
+
+        private void ShowFrequencySign(Point mousePosition)
+        {
+            var uv = GetUVbyMousePosition();
+
+            if (uv.X < 0.0f || uv.X > 1.0f || uv.Y < 0.0f || uv.Y > 1.0f)
+            {
+                return;
+            }
+
+            var mousePointerFrequencyIndex = GetFrequencyIndex(uv.X);
+            var data = SpectrumSlice.Datas[mousePointerFrequencyIndex];
+            var amplitude = data.Amplitude;
+            float frequencyAmplitudeRatio = amplitude / SpectrumSlice.MaxAmplitude;
+            //float mouseRelativeAmplitude = uv.Y;
+
+            if (uv.Y <= frequencyAmplitudeRatio)
+            {
+                //todo put out:?
+                //var frequency = data.Frequency / ;
+                LabelFrequency.Content = $"Frequency: {data.Frequency} Hz";
+                LabelAmplitude.Content = $"Amplitude: {data.Amplitude}";
+                SelectedValueSignContainer.Visibility = Visibility.Visible;
+                Canvas.SetLeft(SelectedValueSignContainer, mousePosition.X - SelectedValueSignContainer.ActualWidth);
+                Canvas.SetTop(SelectedValueSignContainer, mousePosition.Y - SelectedValueSignContainer.ActualHeight);
+            }
+            else
+            {
+                SelectedValueSignContainer.Visibility = Visibility.Hidden;
+            }
+
+        }
+
+        private Vector2 GetUVbyMousePosition()
+        {
+            var mouse = Mouse.GetPosition(OpenGLControl);
+            var pointerScreenCube = new Vector2((float)(mouse.X / OpenGLControl.ActualWidth) * 2 - 1.0f, (float)(1.0f - mouse.Y / OpenGLControl.ActualHeight) * 2 - 1.0f);
+            var pointerCamera = _viewport.InverseTransform(pointerScreenCube);
+            float pointerU = (float)(pointerCamera.X + 1) / 2.0f;
+            float pointerV = (float)(pointerCamera.Y + 1) / 2.0f;
+            var uv = new Vector2(pointerU, pointerV);
+            return uv;
+        }
+
+        private int GetFrequencyIndex(float u)
+        {
+            int width = _endFrequencyElementIndex - _startFrequencyElementIndex;
+            float frequencyWidth = 1.0f / width;
+            int frequencyIndex = (int)Math.Floor(u / frequencyWidth);
+            return frequencyIndex;
         }
     }
 }

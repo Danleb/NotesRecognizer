@@ -22,7 +22,7 @@ layout(std430, binding = 0) buffer Input0 {
 int getFrequencyIndex(float u)
 {
 	int width = endFrequencyElementIndex - startFrequencyElementIndex;
-	float frequencyWidth = 1.0 / int(width);
+	float frequencyWidth = 1.0 / width;
 	int frequencyIndex = int(floor(u / frequencyWidth));
 	return frequencyIndex;
 }
