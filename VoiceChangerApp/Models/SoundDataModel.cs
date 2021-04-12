@@ -20,10 +20,10 @@ namespace VoiceChangerApp.Models
         {
             _logger = logger;
             _errorModel = errorModel;
-            LoadFile.Subscribe(LoadFileImpl);
-            LoadContainer.Subscribe(LoadContainerImpl);
-            CalculateSampleSignalSpectrum.Subscribe(_ => CalculateCommonSignalSpectrumImpl());
-            GenerateSample.Subscribe(GenerateSampleImp);
+            LoadFile.SubscribeAsync(LoadFileImpl);
+            LoadContainer.SubscribeAsync(LoadContainerImpl);
+            CalculateSampleSignalSpectrum.SubscribeAsync(_ => CalculateCommonSignalSpectrumImpl());
+            GenerateSample.SubscribeAsync(GenerateSampleImp);
 
             LoadDefaultData();
         }
@@ -42,6 +42,7 @@ namespace VoiceChangerApp.Models
 
         public readonly Subject<bool> OnSampleLoaded = new();
         public readonly Subject<bool> OnCommonSignalSpectrumCalculated = new();
+        public readonly BehaviorSubject<CalculationState> OnCommonSignalSpectrumCalculationState = new(CalculationState.None);
         public readonly Subject<bool> OnIsLoading = new();
         public readonly Subject<SoundSource> OnSoundSourceChanged = new();
 
@@ -154,6 +155,7 @@ namespace VoiceChangerApp.Models
 
             try
             {
+                OnCommonSignalSpectrumCalculationState.OnNext(CalculationState.Calculating);
                 //var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
                 var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
                 //var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransform(0, count);                
@@ -168,10 +170,12 @@ namespace VoiceChangerApp.Models
                 }
 
                 OnCommonSignalSpectrumCalculated.OnNext(true);
+                OnCommonSignalSpectrumCalculationState.OnNext(CalculationState.Finished);
             }
             catch (Exception e)
             {
                 OnCommonSignalSpectrumCalculated.OnNext(false);
+                OnCommonSignalSpectrumCalculationState.OnNext(CalculationState.ErrorHappened);
                 _errorModel.RaiseError(e);
             }
         }
