@@ -10,8 +10,7 @@ namespace VoiceChangerApp.Views.SoundViews
 {
     public class CoordinateGridDrawer : IRenderable
     {
-        private const int LinesCount = 600;
-
+        private const int SubSegmentsInUnit = 10;
         private readonly OpenGLControl _openGLControl;
         private readonly OpenGL _gl;
         private readonly uint[] _temp = new uint[5];
@@ -29,7 +28,7 @@ namespace VoiceChangerApp.Views.SoundViews
             _gl = openGLControl.OpenGL;
             _program = _gl.CompileProgram(AppResources.CoordinateGrid_vert, AppResources.CoordinateGrid_frag);
             _mvpMatrixLocation = _gl.GetUniformLocation(_program, "MVP");
-            InitializeDynamicData();
+            InitializeBuffers();
         }
 
         public OrthographicViewportMatrix Viewport { get; set; }
@@ -48,39 +47,16 @@ namespace VoiceChangerApp.Views.SoundViews
                 _vbo != OpenGLUtils.NO_BUFFER;
         }
 
-        public void InitializeDynamicData()
+        public void InitializeBuffers()
         {
             if (IsInitialized())
             {
                 return;
             }
 
-            _verticesCount = (LinesCount + 1) * 2;
-            _linesCoordinates = new float[_verticesCount * 2];
-            for (int i = 0; i < LinesCount; i++)
-            {
-                var yValue = 0.15f;
-                if (i % 10 == 0)
-                {
-                    yValue *= 3;
-                }
-
-                _linesCoordinates[i * 4] = i / 10.0f;
-                _linesCoordinates[i * 4 + 1] = -yValue;
-
-                _linesCoordinates[i * 4 + 2] = i / 10.0f;
-                _linesCoordinates[i * 4 + 3] = yValue;
-            }
-
-            _linesCoordinates[LinesCount * 4] = 0;
-            _linesCoordinates[LinesCount * 4 + 1] = 0;
-            _linesCoordinates[LinesCount * 4 + 2] = 100;
-            _linesCoordinates[LinesCount * 4 + 3] = 0;
-
             _gl.GenBuffers(1, _temp);
             _vbo = _temp[0];
             _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
-            _gl.BufferData(OpenGL.GL_ARRAY_BUFFER, _linesCoordinates, OpenGL.GL_STATIC_DRAW);
 
             _gl.GenVertexArrays(1, _temp);
             _vao = _temp[0];
@@ -97,7 +73,35 @@ namespace VoiceChangerApp.Views.SoundViews
 
         public void InitializeGrid(float duration)
         {
+            InitializeBuffers();
 
+            var linesCount = ((int)duration + 1) * SubSegmentsInUnit + 1;
+            _verticesCount = (linesCount + 1) * 2;
+            _linesCoordinates = new float[_verticesCount * 2];
+            for (int i = 0; i < linesCount; i++)
+            {
+                var yValue = 0.15f;
+                if (i % SubSegmentsInUnit == 0)
+                {
+                    yValue *= 3;
+                }
+
+                _linesCoordinates[i * 4] = (float)i / SubSegmentsInUnit;
+                _linesCoordinates[i * 4 + 1] = -yValue;
+
+                _linesCoordinates[i * 4 + 2] = (float)i / SubSegmentsInUnit;
+                _linesCoordinates[i * 4 + 3] = yValue;
+            }
+
+            //x axis line
+            _linesCoordinates[linesCount * 4] = 0;
+            _linesCoordinates[linesCount * 4 + 1] = 0;
+            _linesCoordinates[linesCount * 4 + 2] = duration;
+            _linesCoordinates[linesCount * 4 + 3] = 0;
+
+            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, _vbo);
+            _gl.BufferData(OpenGL.GL_ARRAY_BUFFER, _linesCoordinates, OpenGL.GL_STATIC_DRAW);
+            _gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, OpenGLUtils.NO_BUFFER);
         }
 
         public void Render()

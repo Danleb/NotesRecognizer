@@ -12,10 +12,10 @@ namespace VoiceChangerApp.Models
     {
         private readonly ILogger _logger;
         private readonly SoundDataModel _soundDataModel;
-        private readonly ErrorModel _errorModel;
+        private readonly IErrorModel _errorModel;
         private ScalogramCreator _scalogramCreator;
 
-        public ScalogramModel(ILogger<ScalogramModel> logger, SoundDataModel soundDataModel, ErrorModel errorModel)
+        public ScalogramModel(ILogger<ScalogramModel> logger, SoundDataModel soundDataModel, IErrorModel errorModel)
         {
             _logger = logger;
             _soundDataModel = soundDataModel;

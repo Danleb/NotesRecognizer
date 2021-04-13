@@ -17,9 +17,9 @@ namespace VoiceChangerApp.ViewModels
         {
             ErrorModel = errorModel;
 
-            ErrorModel.OnError.Subscribe(e =>
+            ErrorModel.OnErrorDescription.Subscribe(e =>
             {
-                MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             });
         }
 

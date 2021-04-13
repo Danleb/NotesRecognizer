@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 
 namespace VoiceChangerApp.Models
 {
-    public class ErrorModel
+    public class ErrorModel : IErrorModel
     {
         private readonly ILogger<ErrorModel> _logger;
 
@@ -16,6 +16,7 @@ namespace VoiceChangerApp.Models
         #region Events
 
         public readonly Subject<Exception> OnError = new();
+        public readonly Subject<string> OnErrorDescription = new();
 
         #endregion
 
@@ -23,6 +24,13 @@ namespace VoiceChangerApp.Models
         {
             _logger.LogError(e.ToString());
             OnError.OnNext(e);
+            OnErrorDescription.OnNext(e.ToString());
+        }
+
+        public void RaiseError(string e)
+        {
+            _logger.LogError(e);
+            OnErrorDescription.OnNext(e);
         }
     }
 }

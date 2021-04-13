@@ -49,9 +49,9 @@ namespace VoiceChangerApp
 
         private static void RegisterModel(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterSingleton<ErrorModel, ErrorModel>();
+            containerRegistry.RegisterSingleton<IErrorModel, ErrorModel>();
             containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
-            containerRegistry.RegisterSingleton<UserPreferencesModel, UserPreferencesModel>();            
+            containerRegistry.RegisterSingleton<UserPreferencesModel, UserPreferencesModel>();
             containerRegistry.RegisterSingleton<ScalogramModel, ScalogramModel>();
         }
 

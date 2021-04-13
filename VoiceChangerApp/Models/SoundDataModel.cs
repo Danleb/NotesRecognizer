@@ -3,7 +3,9 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reactive.Subjects;
+using System.Reflection;
 using VoiceChanger.FormatParser;
 using VoiceChanger.SpectrumCreator;
 using VoiceChanger.Utils;
@@ -14,16 +16,22 @@ namespace VoiceChangerApp.Models
     public class SoundDataModel : BindableBase
     {
         private readonly ILogger _logger;
-        private readonly ErrorModel _errorModel;
+        private readonly IErrorModel _errorModel;
+        private readonly UserPreferencesModel _userPreferencesModel;
 
-        public SoundDataModel(ILogger<SoundDataModel> logger, ErrorModel errorModel)
+        public SoundDataModel(ILogger<SoundDataModel> logger, IErrorModel errorModel, UserPreferencesModel userPreferencesModel)
         {
             _logger = logger;
             _errorModel = errorModel;
+            _userPreferencesModel = userPreferencesModel;
             LoadFile.SubscribeAsync(LoadFileImpl);
             LoadContainer.SubscribeAsync(LoadContainerImpl);
             CalculateSampleSignalSpectrum.SubscribeAsync(_ => CalculateCommonSignalSpectrumImpl());
             GenerateSample.SubscribeAsync(GenerateSampleImp);
+            SetCurrentWorkDirectory.SubscribeAsync(SetCurrentWorkDirectoryImpl);
+
+            var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            SetCurrentWorkDirectoryImpl(_userPreferencesModel.WorkDirectory ?? currentPath);
 
             LoadDefaultData();
         }
@@ -35,6 +43,7 @@ namespace VoiceChangerApp.Models
         public readonly Subject<bool> CalculateSampleSignalSpectrum = new();
         public readonly Subject<SampleGeneratorSettings> GenerateSample = new();
         public readonly Subject<bool> SaveCurrentSampleToFile = new();
+        public readonly Subject<string> SetCurrentWorkDirectory = new();
 
         #endregion
 
@@ -45,6 +54,7 @@ namespace VoiceChangerApp.Models
         public readonly BehaviorSubject<CalculationState> OnCommonSignalSpectrumCalculationState = new(CalculationState.None);
         public readonly Subject<bool> OnIsLoading = new();
         public readonly Subject<SoundSource> OnSoundSourceChanged = new();
+        public readonly BehaviorSubject<string> OnCurrentWorkDirectoryChanged = new(null);
 
         #endregion
 
@@ -55,9 +65,10 @@ namespace VoiceChangerApp.Models
         public SpectrumContainer SpectrumContainer => SpectrumCreator.SpectrumContainer;
         public bool IsAudioContainerCreated => AudioContainer != null;
         public bool IsLoadedFromFile { get; private set; }
-        public string Path { get; private set; }
+        public string FilePath { get; private set; }
         public SpectrumSlice CommonSignalSpectrum { get; private set; }
         public SoundSource SoundSource { get; private set; }
+        public string CurrentWorkDirectory { get; private set; }
 
         #endregion
 
@@ -97,7 +108,7 @@ namespace VoiceChangerApp.Models
 
         private void LoadFileImpl(string path)
         {
-            Path = path;
+            FilePath = path;
             IsLoadedFromFile = true;
             OnIsLoading.OnNext(true);
 
@@ -156,10 +167,7 @@ namespace VoiceChangerApp.Models
             try
             {
                 OnCommonSignalSpectrumCalculationState.OnNext(CalculationState.Calculating);
-                //var count = (int)Math.Pow(2, (int)Math.Log2(AudioContainer.SamplesCount));
                 var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
-                //var fft = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransform(0, count);                
-                //CommonSignalSpectrum = fft.CreateSpectrum(0, count);
                 CommonSignalSpectrum = FastFourierTransformCPU.ConvertToSpectrumSlice(fft);
 
                 //todo put out
@@ -186,6 +194,19 @@ namespace VoiceChangerApp.Models
             SoundSource = SoundSource.Generated;
             OnSampleLoaded.OnNext(true);
             OnSoundSourceChanged.OnNext(SoundSource);
+        }
+
+        private void SetCurrentWorkDirectoryImpl(string newPath)
+        {
+            if (Directory.Exists(newPath))
+            {
+                CurrentWorkDirectory = newPath;
+                OnCurrentWorkDirectoryChanged.OnNext(newPath);
+            }
+            else
+            {
+                _errorModel.RaiseError($"Directory doesn't exist: {newPath}");
+            }
         }
     }
 }

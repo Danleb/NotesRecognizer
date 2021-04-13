@@ -1,11 +1,11 @@
 ﻿<UserControl x:Class="VoiceChangerApp.Views.DataSourceViews.DataSourceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
-             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True"
@@ -24,11 +24,11 @@
                 <Button Content="Open file" Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="25" Width="92"/>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Sample data source: " Style="{DynamicResource BoldLabel}"/>
-                    <Label Content="{Binding SoundSource}"></Label>
+                    <Label Content="{Binding SoundSource}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoadedFromFile, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Label Content="File path: " Style="{DynamicResource BoldLabel}"/>
-                    <Label Content="{Binding Path}"></Label>
+                    <Label Content="{Binding FilePath}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Sound track duration: " Style="{DynamicResource BoldLabel}"/>
@@ -51,12 +51,12 @@
                     <TabItem.Content>
                         <StackPanel>
                             <Label Margin="5" Content="Current work folder:"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBox Margin="5" Width="100"></TextBox>
-                                <Button Margin="5" Content="Select"/>
-                            </StackPanel>
-                            <Button Content="Load selected file" Margin="5"/>
-                            <ListBox Margin="5"/>
+                            <DockPanel>
+                                <Button Command="{Binding SelectWorkFolder}" Margin="5" Content="Select" Padding="8,2" HorizontalAlignment="Right" DockPanel.Dock="Right"/>
+                                <TextBox Text="{Binding CurrentWorkDirectory}" Margin="5" IsReadOnly="True"/>
+                            </DockPanel>
+                            <Button Command="{Binding LoadSelectedFile}" Content="Load selected file" Margin="5"/>
+                            <ListView ItemsSource="{Binding DirectoryFiles}" SelectedItem="{Binding SelectedFilePathItem}"/>
                         </StackPanel>
                     </TabItem.Content>
                 </TabItem>
