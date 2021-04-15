@@ -41,18 +41,19 @@ namespace VoiceChangerApp
 
         private static void RegisterViewModel(IContainerRegistry containerRegistry)
         {
-            containerRegistry.Register<DataSourceViewModel, DataSourceViewModel>();
-            containerRegistry.Register<EditorWindowViewModel, EditorWindowViewModel>();
-            containerRegistry.Register<RawSoundViewModel, RawSoundViewModel>();
-            containerRegistry.Register<WaveletGenerationViewModel, WaveletGenerationViewModel>();
+            containerRegistry.Register<DataSourceViewModel>();
+            containerRegistry.Register<EditorWindowViewModel>();
+            containerRegistry.Register<RawSoundViewModel>();
+            containerRegistry.Register<WaveletGenerationViewModel>();
         }
 
         private static void RegisterModel(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<ErrorModel, ErrorModel>();
             containerRegistry.RegisterSingleton<IErrorModel, ErrorModel>();
-            containerRegistry.RegisterSingleton<SoundDataModel, SoundDataModel>();
-            containerRegistry.RegisterSingleton<UserPreferencesModel, UserPreferencesModel>();
-            containerRegistry.RegisterSingleton<ScalogramModel, ScalogramModel>();
+            containerRegistry.RegisterSingleton<SoundDataModel>();
+            containerRegistry.RegisterSingleton<UserPreferencesModel>();
+            containerRegistry.RegisterSingleton<ScalogramModel>();
         }
 
         private static void RegisterGenericLogger(IContainerRegistry containerRegistry)

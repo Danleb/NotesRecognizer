@@ -46,7 +46,11 @@ namespace VoiceChanger
                 throw new Exception($"Wrong {nameof(header.subchunk1Size)} value. Must be 16 but is {header.subchunk1Size}.");
             }
 
-            if (header.DataString != "data")
+            if (header.DataString == "LIST")
+            {
+                throw new NotImplementedException();
+            }
+            else if (header.DataString != "data")
             {
                 throw new Exception("Invalid DATA string signature.");
             }

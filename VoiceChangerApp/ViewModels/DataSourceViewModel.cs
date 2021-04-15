@@ -134,6 +134,13 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _selectedFilePathItem, value); }
         }
 
+        private int _loadedChannelNumber;
+        public int ChannelNumber
+        {
+            get { return _loadedChannelNumber; }
+            set { SetProperty(ref _loadedChannelNumber, value); }
+        }
+
         #endregion
 
         #region Methods

@@ -1,12 +1,12 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using VoiceChanger.Scalogram;
 using VoiceChangerApp.Models;
 using VoiceChangerApp.Utils;
-using System;
 
 namespace VoiceChangerApp.ViewModels
 {
@@ -20,12 +20,29 @@ namespace VoiceChangerApp.ViewModels
 
             CreateScalogram = new DelegateCommand(() =>
             {
-                var list = new List<float>();
-                for (var frequency = FrequencyFrom; frequency <= FrequencyTo; frequency += FrequencyStep)
+                switch (_scalogramType)
                 {
-                    list.Add(frequency);
+                    case ScalogramType.Guitar:
+                        {
+                            var settings = new GuitarScalogramCreationSettings
+                            {
+                                TonesCount = GuitarTonesCount
+                            };
+                            ScalogramModel.CreateScalogramGuitar.OnNext(settings);
+                            break;
+                        }
+                    case ScalogramType.Linear:
+                        {
+                            var settings = new LinearScalogramCreationSettings
+                            {
+                                FrequencyFrom = FrequencyFrom,
+                                FrequencyTo = FrequencyTo,
+                                FrequencyStep = FrequencyStep
+                            };
+                            ScalogramModel.CreateScalogramLinear.OnNext(settings);
+                            break;
+                        }
                 }
-                ScalogramModel.CreateScalogram.OnNext(list);
             });
 
             ScalogramModel.OnScalogramCreated
@@ -36,6 +53,8 @@ namespace VoiceChangerApp.ViewModels
             FrequencyFrom = 100;
             FrequencyTo = 200;
             FrequencyStep = 1;
+
+            GuitarTonesCount = 2;
         }
 
         public ScalogramModel ScalogramModel { get; }
@@ -58,7 +77,12 @@ namespace VoiceChangerApp.ViewModels
         public ScalogramType ScalogramType
         {
             get { return _scalogramType; }
-            set { SetProperty(ref _scalogramType, value); }
+            set
+            {
+                SetProperty(ref _scalogramType, value);
+                GuitarSettingsVisible = _scalogramType == ScalogramType.Guitar;
+                LinearSettingsVisible = _scalogramType == ScalogramType.Linear;
+            }
         }
 
         private float _frequencyFrom;
@@ -80,6 +104,27 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _frequencyStep; }
             set { SetProperty(ref _frequencyStep, value); }
+        }
+
+        private int _guitarTonesCount;
+        public int GuitarTonesCount
+        {
+            get { return _guitarTonesCount; }
+            set { SetProperty(ref _guitarTonesCount, value); }
+        }
+
+        private bool _guitarSettingsVisible;
+        public bool GuitarSettingsVisible
+        {
+            get { return _guitarSettingsVisible; }
+            set { SetProperty(ref _guitarSettingsVisible, value); }
+        }
+
+        private bool _linearSettingsVisible;
+        public bool LinearSettingsVisible
+        {
+            get { return _linearSettingsVisible; }
+            set { SetProperty(ref _linearSettingsVisible, value); }
         }
 
         #endregion

@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Subjects;
+using VoiceChanger.NoteRecognizer;
 using VoiceChanger.Scalogram;
 using VoiceChanger.SpectrumCreator;
+using VoiceChangerApp.Utils;
 
 namespace VoiceChangerApp.Models
 {
@@ -20,12 +21,15 @@ namespace VoiceChangerApp.Models
             _logger = logger;
             _soundDataModel = soundDataModel;
             _errorModel = errorModel;
-            CreateScalogram.Subscribe(CreateScalogramImpl);
+            CreateScalogramLinear.Subscribe(CreateScalogramLinearImpl);
+            CreateScalogramGuitar.Subscribe(CreateScalogramGuitarImpl);
         }
 
         #region Commands
 
-        public readonly Subject<List<float>> CreateScalogram = new();
+        public readonly Subject<LinearScalogramCreationSettings> CreateScalogramLinear = new();
+
+        public readonly Subject<GuitarScalogramCreationSettings> CreateScalogramGuitar = new();
 
         #endregion
 
@@ -41,7 +45,39 @@ namespace VoiceChangerApp.Models
 
         #endregion
 
-        private void CreateScalogramImpl(List<float> frequencies)
+        private void CreateScalogramLinearImpl(LinearScalogramCreationSettings settings)
+        {
+            try
+            {
+                var frequencies = new List<float>();
+                for (var frequency = settings.FrequencyFrom; frequency <= settings.FrequencyTo; frequency += settings.FrequencyStep)
+                {
+                    frequencies.Add(frequency);
+                }
+
+                CreateScalogram(frequencies);
+            }
+            catch (Exception e)
+            {
+                ScalogramContainer = null;
+                _errorModel.RaiseError(e);
+            }
+        }
+
+        private void CreateScalogramGuitarImpl(GuitarScalogramCreationSettings settings)
+        {
+            try
+            {
+                var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
+                CreateScalogram(frequencies);
+            }
+            catch (Exception e)
+            {
+                _errorModel.RaiseError(e);
+            }
+        }
+
+        private void CreateScalogram(List<float> frequencies)
         {
             try
             {
@@ -65,6 +101,7 @@ namespace VoiceChangerApp.Models
                     _logger.LogInformation("Using cached ScalogramCreator");
                 }
 
+                frequencies.Sort();
                 ScalogramContainer = _scalogramCreator.CreateScalogram(frequencies);
 
                 //ScalogramContainer = new ScalogramContainer(10, 2);                
@@ -78,7 +115,6 @@ namespace VoiceChangerApp.Models
             catch (Exception e)
             {
                 ScalogramContainer = null;
-                _errorModel.RaiseError(e);
             }
         }
     }
