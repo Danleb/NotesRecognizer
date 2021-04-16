@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using VoiceChanger.FormatParser;
 using VoiceChanger.Utils;
@@ -26,58 +25,94 @@ namespace VoiceChanger
                 throw new Exception("Invalid format Riff signature.");
             }
 
+            var fileInfo = new FileInfo(Path);
+            if (fileInfo.Length - WAV_Header.HeaderSize != header.FileSize)
+            {
+                throw new Exception("Invalid file size field value.");
+            }
+
             if (header.SignatureWave != "WAVE")
             {
                 throw new Exception("Invalid format WAVE signature.");
             }
 
-            if (header.FormatChunkMarker != "fmt ")
+            var dataChunkFound = false;
+            var fmtChunkFound = false;
+            FmtChunk fmtChunk = new();
+            RIFF_Chunk dataChunk = new();
+
+            while (!dataChunkFound)
             {
-                throw new Exception("Invalid fmt signature.");
+                var chunkHeader = binaryReader.ReadStruct<RIFF_Chunk>();
+                var isPaddingByteNeeded = chunkHeader.ChunkSize % 2 != 0;
+
+                switch (chunkHeader.ChunkName)
+                {
+                    case "fmt ":
+                        {
+                            fmtChunk = binaryReader.ReadStruct<FmtChunk>();
+                            fmtChunkFound = true;
+                            break;
+                        }
+
+                    case "data":
+                        {
+                            dataChunk = chunkHeader;
+                            dataChunkFound = true;
+                            break;
+                        }
+
+                    default:
+                        {
+                            var bytesToSkip = chunkHeader.ChunkSize;
+                            if (isPaddingByteNeeded)
+                            {
+                                bytesToSkip++;
+                            }
+
+                            binaryReader.ReadBytes(bytesToSkip);
+                            break;
+                        }
+                }
+
+                if (isPaddingByteNeeded && !dataChunkFound)
+                {
+                    binaryReader.ReadByte();
+                }
             }
 
-            if (header.AudioFormat != 1)
+            if (dataChunkFound && !fmtChunkFound)
+            {
+                throw new Exception("fmt chunk is required but not found.");
+            }
+
+            if (fmtChunk.AudioFormat != 1)
             {
                 throw new Exception("Unsupported WAVE format. Only PCM supported.");
             }
 
-            if (header.subchunk1Size != 16)
-            {
-                throw new Exception($"Wrong {nameof(header.subchunk1Size)} value. Must be 16 but is {header.subchunk1Size}.");
-            }
-
-            if (header.DataString == "LIST")
-            {
-                throw new NotImplementedException();
-            }
-            else if (header.DataString != "data")
-            {
-                throw new Exception("Invalid DATA string signature.");
-            }
-
-            var rawData = binaryReader.ReadBytes(header.DataSectionSize);
+            var rawData = binaryReader.ReadBytes(dataChunk.ChunkSize);
             binaryReader.Close();
 
-            var step = header.NumberOfChannels * header.BytesPerSample;
-            var singleChannelDataSize = header.DataSectionSize / step;
+            var step = fmtChunk.NumberOfChannels * fmtChunk.BytesPerSample;
+            var singleChannelDataSize = dataChunk.ChunkSize / step;
             var singleChannelData = new float[singleChannelDataSize];
 
-            var durationSeconds = 1.0f * header.DataSectionSize / header.BytesPerSample / header.NumberOfChannels / header.SampleRate;
+            var durationSeconds = 1.0f * dataChunk.ChunkSize / fmtChunk.BytesPerSample / fmtChunk.NumberOfChannels / fmtChunk.SampleRate;
 
             for (int byteIndex = 0, sampleIndex = 0; byteIndex < rawData.Length; byteIndex += step, sampleIndex++)
             {
-                int value;
-                switch (header.BytesPerSample)
+                var value = fmtChunk.BytesPerSample switch
                 {
-                    case 1: value = rawData[byteIndex]; break;
-                    case 2: value = BitConverter.ToInt16(rawData, byteIndex); break;
-                    case 4: value = BitConverter.ToInt32(rawData, byteIndex); break;
-                    default: throw new NotImplementedException("Support of bytes per sample = " + header.BytesPerSample);
-                }
+                    1 => rawData[byteIndex],
+                    2 => BitConverter.ToInt16(rawData, byteIndex),
+                    4 => BitConverter.ToInt32(rawData, byteIndex),
+                    _ => throw new NotImplementedException("Support of bytes per sample = " + fmtChunk.BytesPerSample),
+                };
                 singleChannelData[sampleIndex] = value;
             }
 
-            var container = new AudioContainer(durationSeconds, header.SampleRate, singleChannelData);
+            var container = new AudioContainer(durationSeconds, fmtChunk.SampleRate, singleChannelData);
             return container;
         }
     }
