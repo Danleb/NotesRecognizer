@@ -5,6 +5,8 @@ namespace VoiceChanger.FormatParser
 {
     public class AudioContainer
     {
+        private const float SampleRateEpsilon = 0.1f;
+
         public AudioContainer(float[] samples, int sampleRate)
         {
             Samples = samples;
@@ -21,9 +23,9 @@ namespace VoiceChanger.FormatParser
             Samples = samples;
 
             var sampleRateCalculated = samples.Length / duration;
-            if (sampleRateCalculated != sampleRate)
+            if (Math.Abs(sampleRateCalculated - sampleRate) > SampleRateEpsilon)
             {
-                throw new Exception();
+                throw new Exception("Sample rate calculation problem");
             }
 
             SetMinMax();
