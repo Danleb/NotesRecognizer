@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:VoiceChangerApp.Converters"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:soundViews="clr-namespace:VoiceChangerApp.Views.SoundViews"
              xmlns:vr="clr-namespace:VoiceChangerApp.Views.ValidationRules"
@@ -14,6 +15,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:CalculationStateConverter x:Key="calculationStateConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Styles/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -22,15 +24,15 @@
     <DockPanel Background="White">
         <StackPanel DockPanel.Dock="Top">
             <StackPanel Orientation="Horizontal">
-                <Label Content="Select scalogram type:" Margin="5"/>
-                <ComboBox Margin="5" ItemsSource="{Binding AvailableScalogramTypes}" SelectedItem="{Binding ScalogramType}"/>
+                <Label Content="Scalogram type:" Margin="5,0" Style="{StaticResource BoldLabel}" VerticalAlignment="Center"/>
+                <ComboBox Margin="5" ItemsSource="{Binding AvailableScalogramTypes}" SelectedItem="{Binding ScalogramType}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Visibility="{Binding LinearSettingsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Label Content="From:" />
                 <TextBox Style="{StaticResource TextBoxValidating}" Width="80" Margin="5">
                     <TextBox.Text>
-                        <Binding Path="FrequencyFrom" UpdateSourceTrigger="PropertyChanged">
+                        <Binding Path="FrequencyFrom" UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <vr:PositiveNumberValidationRule/>
                             </Binding.ValidationRules>
@@ -41,7 +43,7 @@
                 <Label Content="To:" />
                 <TextBox Style="{StaticResource TextBoxValidating}" Width="80" Margin="5">
                     <TextBox.Text>
-                        <Binding Path="FrequencyTo" UpdateSourceTrigger="PropertyChanged">
+                        <Binding Path="FrequencyTo" UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <vr:PositiveNumberValidationRule/>
                             </Binding.ValidationRules>
@@ -52,7 +54,7 @@
                 <Label Content="Step:" />
                 <TextBox Style="{StaticResource TextBoxValidating}" Width="80" Margin="5">
                     <TextBox.Text>
-                        <Binding Path="FrequencyStep" UpdateSourceTrigger="PropertyChanged">
+                        <Binding Path="FrequencyStep" UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <vr:PositiveNumberValidationRule/>
                             </Binding.ValidationRules>
@@ -68,6 +70,32 @@
                         <Binding Path="GuitarTonesCount" UpdateSourceTrigger="PropertyChanged">
                             <Binding.ValidationRules>
                                 <vr:PositiveIntValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="State: " Margin="5,0" Style="{StaticResource BoldLabel}"/>
+                <TextBlock VerticalAlignment="Center">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} ({1:0.00}%) ({2:0.00} s.)">
+                            <Binding Path="CalculationState" Converter="{StaticResource calculationStateConverter}" />
+                            <Binding Path="ProgressPercents" />
+                            <Binding Path="SecondsPassed" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Cycles:" Style="{StaticResource BoldLabel}" Margin="5,0"/>
+                <TextBox Margin="5" Style="{StaticResource TextBoxValidating}">
+                    <TextBox.Text>
+                        <Binding Path="CyclesCount" UpdateSourceTrigger="LostFocus">
+                            <Binding.ValidationRules>
+                                <vr:PositiveNumberValidationRule/>
                             </Binding.ValidationRules>
                         </Binding>
                     </TextBox.Text>

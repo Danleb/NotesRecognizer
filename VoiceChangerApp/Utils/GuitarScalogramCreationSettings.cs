@@ -1,6 +1,6 @@
 ﻿namespace VoiceChangerApp.Utils
 {
-    public class GuitarScalogramCreationSettings
+    public class GuitarScalogramCreationSettings : ScalogramCreationSettings
     {
         public int TonesCount { get; set; }
     }

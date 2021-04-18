@@ -1,10 +1,8 @@
 ﻿using OxyPlot;
 using Prism.Commands;
 using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using VoiceChanger.Scalogram;
 using VoiceChanger.SpectrumCreator;
 using VoiceChangerApp.Models;
 
@@ -14,38 +12,27 @@ namespace VoiceChangerApp.ViewModels
     {
         public WaveletTransformNumericalViewModel() { }
 
-        public WaveletTransformNumericalViewModel(SoundDataModel soundDataModel)
+        public WaveletTransformNumericalViewModel(SoundDataModel soundDataModel, ScalogramModel scalogramModel)
         {
             SoundDataModel = soundDataModel;
-
+            ScalogramModel = scalogramModel;
             GenerateAnalysis = new DelegateCommand(() =>
             {
-                SoundDataModel.AudioContainer.Normalize();
-                var cwt = new WaveletTransformCPU(SoundDataModel.AudioContainer);
-                var fs = cwt.CreateScalogram(FrequencyToAnalyze);
-                //var sb = new StringBuilder();
+                var fft = new FastFourierTransformCPU(SoundDataModel.AudioContainer.Samples);
+                var scalogramCreator = new ScalogramCreator(SoundDataModel.AudioContainer, fft);
+                var frequencies = new List<float>
+                {
+                    FrequencyToAnalyze
+                };
+                var scalogramContainer = scalogramCreator.CreateScalogram(frequencies, CyclesCount);
+
                 var list = new List<DataPoint>();
                 var n = 1;
-                foreach (var v in fs)
+                foreach (var v in scalogramContainer.ScalogramValues)
                 {
                     list.Add(new DataPoint(n++, v));
-
-                    //sb.Append(v);
-                    //sb.Append(Environment.NewLine);
                 }
                 Points = list;
-
-                //var path = "Result.txt";
-
-                //if (File.Exists(path))
-                //{
-                //    File.Delete(path);
-                //}
-
-                //var sw = new StreamWriter(path);
-                //sw.Write(sb.ToString());
-                //sw.Close();
-                //Result = sb.ToString();
             });
 
             AnalyzeNextFrequency = new DelegateCommand(() =>
@@ -61,6 +48,7 @@ namespace VoiceChangerApp.ViewModels
             });
 
             FrequencyToAnalyze = 1;
+            CyclesCount = 3;
         }
 
         #region Commands
@@ -72,6 +60,8 @@ namespace VoiceChangerApp.ViewModels
         #endregion
 
         #region Properties
+
+        public ScalogramModel ScalogramModel { get; }
 
         private string _result;
         public string Result
@@ -99,6 +89,13 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _points; }
             set { SetProperty(ref _points, value); }
+        }
+
+        private int _cyclesCount;
+        public int CyclesCount
+        {
+            get { return _cyclesCount; }
+            set { SetProperty(ref _cyclesCount, value); }
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Numerics;
 using VoiceChanger.FormatParser;
 
@@ -6,6 +7,8 @@ namespace VoiceChanger.SpectrumCreator
 {
     public class WaveletTransformCPU
     {
+        private readonly ILogger _logger;
+
         public AudioContainer AudioContainer { get; }
 
         public WaveletTransformCPU(AudioContainer audioContainer)
@@ -13,7 +16,7 @@ namespace VoiceChanger.SpectrumCreator
             AudioContainer = audioContainer;
         }
 
-        public static float[] CreateScalogram(float frequency, Complex[] signalFT, int sampleRate, int cyclesCount, double sigma)
+        public static float[] CreateScalogram(float frequency, Complex[] signalFT, int sampleRate, float cyclesCount, double sigma)
         {
             var pointsCount = signalFT.Length;
             var wavelet = GenerateMorletWavelet(frequency, sampleRate, cyclesCount, pointsCount, sigma);
@@ -41,20 +44,19 @@ namespace VoiceChanger.SpectrumCreator
             return amplitudes;
         }
 
-        public float[] CreateScalogram(float sinusoidFrequency)
+        public float[] CreateScalogram(float sinusoidFrequency, float cycles)
         {
             var signalFFT = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
-            var waveletCyclesCount = 5;
             var sigma = 6;
-            return CreateScalogram(sinusoidFrequency, signalFFT, AudioContainer.SampleRate, waveletCyclesCount, sigma);
+            return CreateScalogram(sinusoidFrequency, signalFFT, AudioContainer.SampleRate, cycles, sigma);
         }
 
-        public static Complex[] GenerateMorletWavelet(float sinusoidFrequency, int sampleRate, int cycles, int pointsCount, double sigma)
+        public static Complex[] GenerateMorletWavelet(float sinusoidFrequency, int sampleRate, float cycles, int pointsCount, double sigma)
         {
-            //var gaussianWindowScale = 1.0f;
+            var gaussianWindowScale = 1.0f;
             //gaussianWindowScale *= sinusoidFrequency;
-            //const int cyclesCountInIdentityGaussian = 3;
-            //gaussianWindowScale *= (cycles / cyclesCountInIdentityGaussian);
+            const int cyclesCountInIdentityGaussian = 3;
+            gaussianWindowScale *= (cycles / cyclesCountInIdentityGaussian);
 
             var samplePeriod = 1.0 / sampleRate;
             //var seconds = samplePeriod * pointsCount;
@@ -63,21 +65,20 @@ namespace VoiceChanger.SpectrumCreator
 
             sigma = 2 * Math.PI * sinusoidFrequency;
 
-            for (int i = 0; i < pointsCount; i++)
-            {
-                //var time = -seconds / 2.0 + samplePeriod * i;
-                var time = (-pointsCount / 2.0 + i) * samplePeriod;
+            var kSigma = Math.Exp(-1.0 / 2.0 * Math.Pow(sigma, 2));
 
-                var kSigma = Math.Exp(-1.0 / 2.0 * Math.Pow(sigma, 2));
-
-                var cSigma = Math.Pow(
+            var cSigma = Math.Pow(
                     (1 + Math.Exp(-Math.Pow(sigma, 2) - 2 * Math.Exp(-3.0 / 4.0 * Math.Pow(sigma, 2))))
                     , -0.5);
+
+            for (int i = 0; i < pointsCount; i++)
+            {
+                var time = (-pointsCount / 2.0 + i) * samplePeriod;
 
                 var value =
                     cSigma *
                     Math.Pow(Math.PI, -1.0 / 4.0) *
-                    Math.Exp(-1.0 / 2.0 * Math.Pow(time, 2)) *
+                    Math.Exp(-1.0 / 2.0 * Math.Pow(time / gaussianWindowScale, 2)) *
                     (Complex.Exp(new Complex(0, sigma * time)) - kSigma);
 
                 values[i] = value;

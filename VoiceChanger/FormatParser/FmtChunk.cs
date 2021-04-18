@@ -6,6 +6,8 @@ namespace VoiceChanger.FormatParser
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public unsafe struct FmtChunk
     {
+        public const int ChunkSize = 16;
+
         public Int16 AudioFormat;
         public Int16 NumberOfChannels;
         public Int32 SampleRate;

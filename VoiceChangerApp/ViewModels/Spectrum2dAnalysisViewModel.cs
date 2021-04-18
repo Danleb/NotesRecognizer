@@ -12,7 +12,7 @@ namespace VoiceChangerApp.ViewModels
 {
     public class Spectrum2dAnalysisViewModel : BindableBase
     {
-        private DispatcherTimer _dispatcherTimer = new();
+        private readonly DispatcherTimer _dispatcherTimer = new();
         private DateTime _startTime;
 
         public Spectrum2dAnalysisViewModel() { }
@@ -109,7 +109,6 @@ namespace VoiceChangerApp.ViewModels
                     {
                         _dispatcherTimer.Start();
                         _startTime = DateTime.Now;
-
                         break;
                     }
                 case CalculationState.Finished:
@@ -118,7 +117,6 @@ namespace VoiceChangerApp.ViewModels
                 case CalculationState.None:
                     {
                         _dispatcherTimer.Stop();
-
                         break;
                     }
                 default: throw new NotImplementedException();

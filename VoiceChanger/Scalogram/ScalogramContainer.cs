@@ -29,6 +29,23 @@ namespace VoiceChanger.Scalogram
 
         public void Normalize()
         {
+            //for (int frequencyIndex = 0; frequencyIndex < FrequenciesCount; frequencyIndex++)
+            //{
+            //    var max = ScalogramValues[frequencyIndex * SignalsCount];
+            //    for (int u = frequencyIndex * SignalsCount; u < (frequencyIndex + 1) * SignalsCount; u++)
+            //    {
+            //        if (ScalogramValues[u] > max)
+            //        {
+            //            max = ScalogramValues[u];
+            //        }
+            //    }
+
+            //    for (int u = frequencyIndex * SignalsCount; u < (frequencyIndex + 1) * SignalsCount; u++)
+            //    {
+            //        ScalogramValues[u] /= max;
+            //    }
+            //}
+
             var max = ScalogramValues.Max();
             for (int i = 0; i < ScalogramValues.Length; i++)
             {

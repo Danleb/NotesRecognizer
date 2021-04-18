@@ -38,23 +38,23 @@ namespace VoiceChangerApp.Models
 
         #region Commands
 
-        public readonly Subject<string> LoadFile = new();
-        public readonly Subject<AudioContainer> LoadContainer = new();
-        public readonly Subject<bool> CalculateSampleSignalSpectrum = new();
-        public readonly Subject<SampleGeneratorSettings> GenerateSample = new();
-        public readonly Subject<bool> SaveCurrentSampleToFile = new();
-        public readonly Subject<string> SetCurrentWorkDirectory = new();
+        public Subject<string> LoadFile { get; } = new();
+        public Subject<AudioContainer> LoadContainer { get; } = new();
+        public Subject<bool> CalculateSampleSignalSpectrum { get; } = new();
+        public Subject<SampleGeneratorSettings> GenerateSample { get; } = new();
+        public Subject<bool> SaveCurrentSampleToFile { get; } = new();
+        public Subject<string> SetCurrentWorkDirectory { get; } = new();
 
         #endregion
 
         #region Events
 
-        public readonly Subject<bool> OnSampleLoaded = new();
-        public readonly Subject<bool> OnCommonSignalSpectrumCalculated = new();
-        public readonly BehaviorSubject<CalculationState> OnCommonSignalSpectrumCalculationState = new(CalculationState.None);
-        public readonly Subject<bool> OnIsLoading = new();
-        public readonly Subject<SoundSource> OnSoundSourceChanged = new();
-        public readonly BehaviorSubject<string> OnCurrentWorkDirectoryChanged = new(null);
+        public Subject<bool> OnSampleLoaded { get; } = new();
+        public Subject<bool> OnCommonSignalSpectrumCalculated { get; } = new();
+        public BehaviorSubject<CalculationState> OnCommonSignalSpectrumCalculationState { get; } = new(CalculationState.None);
+        public Subject<bool> OnIsLoading { get; } = new();
+        public Subject<SoundSource> OnSoundSourceChanged { get; } = new();
+        public BehaviorSubject<string> OnCurrentWorkDirectoryChanged { get; } = new(null);
 
         #endregion
 
@@ -77,8 +77,9 @@ namespace VoiceChangerApp.Models
         [Conditional("DEBUG")]
         private void LoadDefaultData()
         {
+            LoadFile.OnNext(Samples.GetSamplePath("../SamplesPrivate/6-0-sequence.wav"));
             //LoadDefaultFile();
-            GenerateDefaultSample();
+            //GenerateDefaultSample();
         }
 
         private void LoadDefaultFile()

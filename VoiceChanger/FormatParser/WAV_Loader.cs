@@ -52,6 +52,10 @@ namespace VoiceChanger
                         {
                             fmtChunk = binaryReader.ReadStruct<FmtChunk>();
                             fmtChunkFound = true;
+
+                            var diffLeft = chunkHeader.ChunkSize - FmtChunk.ChunkSize;
+                            binaryReader.ReadBytes(diffLeft);
+
                             break;
                         }
 
