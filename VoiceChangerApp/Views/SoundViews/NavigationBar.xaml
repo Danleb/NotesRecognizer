@@ -8,13 +8,12 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <StackPanel Orientation="Vertical">
-            <ProgressBar Minimum="0" Maximum="100" Value="50" MinHeight="20">
-            </ProgressBar>
+            <ProgressBar x:Name="ProgressBar" Minimum="0" Maximum="1" Value="0.5" MinHeight="20" MouseDown="ProgressBar_MouseDown" MouseUp="ProgressBar_MouseUp" MouseMove="ProgressBar_MouseMove"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Margin="5" Content="&lt;&lt;" DockPanel.Dock="Left"></Button>
-                <Button Margin="5" Content="Stop"></Button>
-                <Button Margin="5" Content="Play/Pause"></Button>
-                <Button Margin="5" Content=">>" DockPanel.Dock="Right"></Button>
+                <Button Margin="5" Content="&lt;&lt;" DockPanel.Dock="Left"/>
+                <Button Margin="5" Content="Stop"/>
+                <Button Margin="5" Content="Play/Pause"/>
+                <Button Margin="5" Content=">>" DockPanel.Dock="Right"/>
             </StackPanel>
         </StackPanel>
     </Grid>

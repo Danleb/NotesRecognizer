@@ -54,7 +54,7 @@ namespace VoiceChangerApp.Models
         public BehaviorSubject<CalculationState> OnCommonSignalSpectrumCalculationState { get; } = new(CalculationState.None);
         public Subject<bool> OnIsLoading { get; } = new();
         public Subject<SoundSource> OnSoundSourceChanged { get; } = new();
-        public BehaviorSubject<string> OnCurrentWorkDirectoryChanged { get; } = new(null);
+        public BehaviorSubject<string> OnCurrentWorkDirectoryChanged { get; } = new("");
 
         #endregion
 
@@ -203,6 +203,7 @@ namespace VoiceChangerApp.Models
             {
                 CurrentWorkDirectory = newPath;
                 OnCurrentWorkDirectoryChanged.OnNext(newPath);
+                _userPreferencesModel.SetWorkDirectory.OnNext(newPath);
             }
             else
             {

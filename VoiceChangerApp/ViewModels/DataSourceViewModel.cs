@@ -148,9 +148,12 @@ namespace VoiceChangerApp.ViewModels
         private void OnCurrentWorkDirectoryChanged(string path)
         {
             CurrentWorkDirectory = path;
-            DirectoryFiles = Directory.EnumerateFiles(CurrentWorkDirectory)
-                .Where(v => AudioLoader.SupportedExtensions.Contains(Path.GetExtension(v)))
-                .ToList();
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                DirectoryFiles = Directory.EnumerateFiles(CurrentWorkDirectory)
+                    .Where(v => AudioLoader.SupportedExtensions.Contains(Path.GetExtension(v)))
+                    .ToList();
+            }
         }
 
         private void OnSoundSourceChanged(SoundSource soundSource)

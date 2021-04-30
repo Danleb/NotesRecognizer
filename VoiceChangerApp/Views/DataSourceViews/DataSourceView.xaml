@@ -82,6 +82,15 @@
                         <local:WaveletGenerationView/>
                     </TabItem.Content>
                 </TabItem>
+
+                <TabItem>
+                    <TabItem.Header>
+                        <Label Content="Sound record"/>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <local:RecordingSoundView/>
+                    </TabItem.Content>
+                </TabItem>
             </TabControl>
         </DockPanel>
     </Grid>

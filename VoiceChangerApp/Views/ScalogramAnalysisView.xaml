@@ -74,6 +74,15 @@
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
+
+                <StackPanel Orientation="Vertical">
+                    <CheckBox Content="1" IsChecked="False"/>
+                    <CheckBox Content="2" IsChecked="False"/>
+                    <CheckBox Content="3" IsChecked="False"/>
+                    <CheckBox Content="4" IsChecked="False"/>
+                    <CheckBox Content="5" IsChecked="False"/>
+                    <CheckBox Content="6" IsChecked="False"/>
+                </StackPanel>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal">

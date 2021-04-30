@@ -71,7 +71,8 @@ namespace VoiceChangerApp.Models
         {
             try
             {
-                var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
+                //var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
+                var frequencies = GuitarTuningNotesCreator.GetStringFrequenciesRange(6, settings.TonesCount);
                 CreateScalogram(frequencies, settings);
             }
             catch (Exception e)

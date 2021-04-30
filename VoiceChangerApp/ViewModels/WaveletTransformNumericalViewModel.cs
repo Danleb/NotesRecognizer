@@ -91,8 +91,8 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _points, value); }
         }
 
-        private int _cyclesCount;
-        public int CyclesCount
+        private float _cyclesCount;
+        public float CyclesCount
         {
             get { return _cyclesCount; }
             set { SetProperty(ref _cyclesCount, value); }

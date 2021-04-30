@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Reactive.Subjects;
+using System.Threading;
 using VoiceChangerApp.Utils;
 
 namespace VoiceChangerApp.Models
@@ -9,6 +10,7 @@ namespace VoiceChangerApp.Models
         private const string _themeKey = "Theme";
         private const string _workDirectoryKey = "WorkDirectory";
         private Configuration _config;
+        private Mutex _configSaveMutex = new();
 
         public UserPreferencesModel()
         {
@@ -20,7 +22,7 @@ namespace VoiceChangerApp.Models
 
             SetWorkDirectory.SubscribeAsync(v =>
             {
-                _config.AppSettings.Settings.Add(_workDirectoryKey, v);
+                SetPreferenceValue(_workDirectoryKey, v);
                 AfterValueChanged();
             });
         }
@@ -53,8 +55,22 @@ namespace VoiceChangerApp.Models
 
         private void AfterValueChanged()
         {
+            _configSaveMutex.WaitOne();
             _config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection(_config.AppSettings.SectionInformation.Name);
+            _configSaveMutex.ReleaseMutex();
+        }
+
+        private void SetPreferenceValue(string key, string value)
+        {
+            if (_config.AppSettings.Settings[key] == null)
+            {
+                _config.AppSettings.Settings.Add(key, value);
+            }
+            else
+            {
+                _config.AppSettings.Settings[key].Value = value;
+            }
         }
     }
 }
