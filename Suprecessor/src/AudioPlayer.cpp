@@ -7,6 +7,8 @@
 #include <devicetopology.h>
 #include <endpointvolume.h>
 #include <mmdeviceapi.h>
+#include <exception>
+#include <winerror.h>
 
 #include "AudioPlayer.h"
 
@@ -20,10 +22,23 @@ namespace suprecessor
 	AudioPlayer::AudioPlayer(AudioContainer audioContainer) : m_audioContainer{ audioContainer }
 	{
 
+
 	}
 
 	AudioPlayer::~AudioPlayer()
 	{
+
+	}
+
+	void AudioPlayer::Initialize()
+	{
+		HRESULT result = CoCreateInstance(
+			CLSID_MMDeviceEnumerator, NULL,
+			CLSCTX_ALL, IID_IMMDeviceEnumerator,
+			(void**)&m_mmDeviceEnumerator);
+		CheckSuccess(result, "Failed to create MMDeviceEnumerator");
+		
+		m_mmDeviceEnumerator->EnumAudioEndpoints(eRender, fab)
 
 	}
 
@@ -41,5 +56,13 @@ namespace suprecessor
 	float AudioPlayer::GetTimePosition()
 	{
 		return 0;
+	}
+
+	void CheckSuccess(HRESULT result, const char* errorMessage)
+	{
+		if (FAILED(result))
+		{
+			throw std::runtime_error(errorMessage);
+		}
 	}
 }

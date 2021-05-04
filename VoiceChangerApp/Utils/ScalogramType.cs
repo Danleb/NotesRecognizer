@@ -3,6 +3,7 @@
     public enum ScalogramType
     {
         Guitar,
-        Linear
+        Linear,
+        Harmonics
     }
 }

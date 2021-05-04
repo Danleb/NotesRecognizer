@@ -1,30 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace VoiceChanger.Scalogram
 {
     public class ScalogramContainer
     {
-        public ScalogramContainer(int signalsCount, int frequenciesCount)
+        private Dictionary<float, float[]> _scalogramValues = new();
+
+        public ScalogramContainer(int signalsCount)
         {
             SignalsCount = signalsCount;
-            FrequenciesCount = frequenciesCount;
-            ScalogramValues = new float[signalsCount * frequenciesCount];
         }
 
-        public float[] ScalogramValues { get; }
-        public int FrequenciesCount { get; }
         public int SignalsCount { get; }
+        public int FrequenciesCount => _scalogramValues.Count;
+        public IEnumerable<float> Frequencies => _scalogramValues.Keys;
+        public IEnumerable<KeyValuePair<float, float[]>> Scalograms => _scalogramValues;
 
-        public void SetFrequencyData(int frequencyIndex, float[] scalogramRowValues)
+        public void SetFrequencyData(float frequency, float[] scalogramValues)
         {
-            if (scalogramRowValues.Length != SignalsCount)
+            if (scalogramValues.Length != SignalsCount)
             {
                 throw new Exception("scalogramRowValues.Length doesn't equal _signalsCount");
             }
 
-            var indexStart = frequencyIndex * SignalsCount;
-            Array.Copy(scalogramRowValues, 0, ScalogramValues, indexStart, scalogramRowValues.Length);
+            _scalogramValues.Add(frequency, scalogramValues);
         }
 
         public void Normalize()
@@ -46,11 +47,24 @@ namespace VoiceChanger.Scalogram
             //    }
             //}
 
-            var max = ScalogramValues.Max();
-            for (int i = 0; i < ScalogramValues.Length; i++)
+            var max = float.MinValue;
+            foreach (var scalogram in _scalogramValues.Values)
             {
-                ScalogramValues[i] /= max;
+                max = Math.Max(max, scalogram.Max());
             }
+
+            foreach (var scalogram in _scalogramValues.Values)
+            {
+                for (int i = 0; i < scalogram.Length; i++)
+                {
+                    scalogram[i] /= max;
+                }
+            }
+        }
+
+        public float[] GetFrequencyScalogram(float frequency)
+        {
+            return _scalogramValues[frequency];
         }
     }
 }

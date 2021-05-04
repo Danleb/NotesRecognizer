@@ -20,15 +20,12 @@ namespace VoiceChangerApp.Models
             _logger = logger;
             _soundDataModel = soundDataModel;
             _errorModel = errorModel;
-            CreateScalogramLinear.SubscribeAsync(CreateScalogramLinearImpl);
-            CreateScalogramGuitar.SubscribeAsync(CreateScalogramGuitarImpl);
+            CreateScalogram.SubscribeAsync(CreateScalogramImpl);
         }
 
         #region Commands
 
-        public Subject<LinearScalogramCreationSettings> CreateScalogramLinear { get; } = new();
-
-        public Subject<GuitarScalogramCreationSettings> CreateScalogramGuitar { get; } = new();
+        public Subject<ScalogramCreationSettings> CreateScalogram { get; } = new();
 
         #endregion
 
@@ -48,6 +45,17 @@ namespace VoiceChangerApp.Models
 
         #endregion
 
+        private void CreateScalogramImpl(ScalogramCreationSettings settings)
+        {
+            switch (settings)
+            {
+                case LinearScalogramCreationSettings linearSettings: CreateScalogramLinearImpl(linearSettings); break;
+                case GuitarScalogramCreationSettings guitarSettings: CreateScalogramGuitarImpl(guitarSettings); break;
+                case HarmonicsScalogramCreationSettings harmonicsSettings: CreateScalogramHarmonics(harmonicsSettings); break;
+                default: throw new NotImplementedException($"Not recognized scalogram creation type: {settings.GetType()}");
+            }
+        }
+
         private void CreateScalogramLinearImpl(LinearScalogramCreationSettings settings)
         {
             try
@@ -58,7 +66,7 @@ namespace VoiceChangerApp.Models
                     frequencies.Add(frequency);
                 }
 
-                CreateScalogram(frequencies, settings);
+                CreateScalogramByFrequencies(frequencies, settings);
             }
             catch (Exception e)
             {
@@ -73,7 +81,7 @@ namespace VoiceChangerApp.Models
             {
                 //var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
                 var frequencies = GuitarTuningNotesCreator.GetStringFrequenciesRange(6, settings.TonesCount);
-                CreateScalogram(frequencies, settings);
+                CreateScalogramByFrequencies(frequencies, settings);
             }
             catch (Exception e)
             {
@@ -81,7 +89,20 @@ namespace VoiceChangerApp.Models
             }
         }
 
-        private void CreateScalogram(List<float> frequencies, ScalogramCreationSettings settings)
+        private void CreateScalogramHarmonics(HarmonicsScalogramCreationSettings settings)
+        {
+            try
+            {
+                var frequencies = GuitarTuningNotesCreator.GetStringHarmonics(settings.StringNumber, settings.ToneIndex, settings.HarmomicsCount);
+                CreateScalogramByFrequencies(frequencies, settings);
+            }
+            catch (Exception e)
+            {
+                _errorModel.RaiseError(e);
+            }
+        }
+
+        private void CreateScalogramByFrequencies(List<float> frequencies, ScalogramCreationSettings settings)
         {
             try
             {

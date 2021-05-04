@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <thread>
+#include <Windows.h>
 
 namespace suprecessor
 {
@@ -18,6 +19,7 @@ namespace suprecessor
 		AudioPlayer(AudioContainer audioContainer);
 		virtual ~AudioPlayer();
 
+		void Initialize();
 		void PlayFromStart();
 		void Play(float timeStart);
 		bool IsPlaying();
@@ -32,7 +34,9 @@ namespace suprecessor
 		AudioContainer m_audioContainer;
 		int32_t m_currentSamplePosition = 0;
 		std::thread m_audioThread;
+		IMMDeviceEnumerator* m_mmDeviceEnumerator = NULL;
 
 		void PlayFromCurrentPosition();
+		void CheckSuccess(HRESULT result, const char* errorMessage);
 	};
 }

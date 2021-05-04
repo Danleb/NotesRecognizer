@@ -64,5 +64,17 @@ namespace VoiceChanger.NoteRecognizer
             var list = set.ToList();
             return list;
         }
+
+        public static List<float> GetStringHarmonics(int stringNumber, int toneIndex, int harmonicsCount)
+        {
+            var frequencies = new List<float>();
+            var baseFrequency = GetStringFrequency(stringNumber, toneIndex);
+            for (int i = 0; i < harmonicsCount; i++)
+            {
+                var frequency = baseFrequency * MathF.Pow(2, i);
+                frequencies.Add(frequency);
+            }
+            return frequencies;
+        }
     }
 }

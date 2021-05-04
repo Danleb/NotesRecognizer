@@ -51,6 +51,17 @@ namespace VoiceChangerApp.ViewModels
                             ScalogramModel.CreateScalogramLinear.OnNext(settings);
                             break;
                         }
+                    case ScalogramType.Harmonics:
+                        {
+                            var settings = new HarmonicsScalogramCreationSettings
+                            {
+                                BaseFrequency = BaseFrequency,
+                                HarmomicsCount = HarmonicsCount,
+                                CyclesCount = CyclesCount
+                            };
+                            ScalogramModel.CreateScalogram.OnNext(settings);
+                            break;
+                        }
                 }
             });
 
