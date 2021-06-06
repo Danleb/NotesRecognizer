@@ -4,7 +4,11 @@ namespace VoiceChanger.NoteRecognizer
 {
     public class NoteContainer
     {
-        public Dictionary<FrequencyData, List<float>> Tablature { get; set; }
+        public List<(float, GuitarFrequencyData)> Sounds { get; set; } = new List<(float, GuitarFrequencyData)>();
 
+        public void AddSound(float time, GuitarFrequencyData data)
+        {
+            Sounds.Add((time, data));
+        }
     }
 }

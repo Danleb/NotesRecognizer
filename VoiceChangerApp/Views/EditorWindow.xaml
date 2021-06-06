@@ -10,7 +10,8 @@
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DataContext="{d:DesignInstance {x:Type vm:EditorWindowViewModel}, IsDesignTimeCreatable=True}"
-        Title="Editor" Height="720" Width="1280"
+        Title="{Binding Title}" Height="720" Width="1280"
+        Background="{DynamicResource GeneralBackground}"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary>
@@ -20,7 +21,13 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,5">
+            <Button Content="File" Padding="10,0" Margin="0,0,5,0" Background="{x:Null}" BorderBrush="{x:Null}"/>
+            <Button Content="Settings" Padding="10,0" Margin="0,0,5,0" Command="{Binding ToolbarOpenAppSettings}" Background="{x:Null}" BorderBrush="{x:Null}"/>
+            <Button Content="About" Padding="10,0" Margin="0,0,5,0" Background="{x:Null}" BorderBrush="{x:Null}"/>
+        </StackPanel>
+
         <TabControl x:Name="TabControl" SelectedIndex="1">
             <TabItem>
                 <TabItem.Header>
@@ -76,5 +83,5 @@
                 </TabItem.Content>
             </TabItem>
         </TabControl>
-    </Grid>
+    </DockPanel>
 </Window>

@@ -132,7 +132,16 @@ namespace VoiceChangerApp.Views.SoundViews
             GL.GenBuffers(1, _bufferTemp);
             _scalogramDataBuffer = _bufferTemp[0];
             GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, _scalogramDataBuffer);
-            GL.BufferData(OpenGL.GL_SHADER_STORAGE_BUFFER, ScalogramContainer.ScalogramValues, OpenGL.GL_STATIC_DRAW);
+
+            float[] scalogramValues = new float[ScalogramContainer.FrequenciesCount * ScalogramContainer.SignalsCount];
+            for (int i = 0; i < ScalogramContainer.Scalograms.Count; i++)
+            {
+                var scalogram = ScalogramContainer.Scalograms[i];
+                var start = i * ScalogramContainer.SignalsCount;
+                Array.Copy(scalogram.Values, 0, scalogramValues, start, ScalogramContainer.SignalsCount);
+            }
+
+            GL.BufferData(OpenGL.GL_SHADER_STORAGE_BUFFER, scalogramValues, OpenGL.GL_STATIC_DRAW);
             GL.BindBufferBase(OpenGL.GL_SHADER_STORAGE_BUFFER, 0, _scalogramDataBuffer);
             GL.BindBuffer(OpenGL.GL_SHADER_STORAGE_BUFFER, OpenGLUtils.NO_BUFFER);
 

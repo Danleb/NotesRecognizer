@@ -7,8 +7,6 @@ namespace VoiceChangerApp.Models
 {
     public class UserPreferencesModel : IUserPreferencesModel
     {
-        private const string _themeKey = "Theme";
-        private const string _workDirectoryKey = "WorkDirectory";
         private Configuration _config;
         private Mutex _configSaveMutex = new();
 
@@ -17,14 +15,14 @@ namespace VoiceChangerApp.Models
             _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var appSettings = _config.AppSettings.Settings;
 
-            WorkDirectory = appSettings[_workDirectoryKey]?.Value;
+            WorkDirectory = appSettings[UserPreferencesKeys.WorkDirectoryKey]?.Value;
             OnWorkDirectoryChanged.OnNext(WorkDirectory);
 
-            SetWorkDirectory.SubscribeAsync(v =>
-            {
-                SetPreferenceValue(_workDirectoryKey, v);
-                AfterValueChanged();
-            });
+            LastOpenedFile = appSettings[UserPreferencesKeys.LastOpenedFileKey]?.Value;
+            OnLastOpenedFileChanged.OnNext(LastOpenedFile);
+
+            SetWorkDirectory.SubscribeAsync(v => UpdatePreference(UserPreferencesKeys.WorkDirectoryKey, v));
+            SetLastOpenedFile.SubscribeAsync(v => UpdatePreference(UserPreferencesKeys.LastOpenedFileKey, v));
         }
 
         #region Properties
@@ -35,6 +33,8 @@ namespace VoiceChangerApp.Models
 
         public string WorkDirectory { get; private set; }
 
+        public string LastOpenedFile { get; private set; }
+
         #endregion
 
         #region Commands
@@ -42,6 +42,7 @@ namespace VoiceChangerApp.Models
         public Subject<Theme> SetTheme { get; } = new();
         public Subject<SoundSource> SetSoundSource { get; } = new();
         public Subject<string> SetWorkDirectory { get; } = new();
+        public Subject<string> SetLastOpenedFile { get; } = new();
 
         #endregion
 
@@ -50,8 +51,15 @@ namespace VoiceChangerApp.Models
         public Subject<Theme> OnThemeChanged { get; } = new();
         public Subject<SoundSource> OnSoundSourceChanged { get; } = new();
         public BehaviorSubject<string> OnWorkDirectoryChanged { get; } = new(string.Empty);
+        public BehaviorSubject<string> OnLastOpenedFileChanged { get; } = new(string.Empty);
 
         #endregion
+
+        private void UpdatePreference(string key, string value)
+        {
+            SetPreferenceValue(key, value);
+            AfterValueChanged();
+        }
 
         private void AfterValueChanged()
         {

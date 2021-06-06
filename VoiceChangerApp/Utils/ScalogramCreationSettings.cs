@@ -1,7 +1,9 @@
-﻿namespace VoiceChangerApp.Utils
+﻿using VoiceChanger.Utils;
+
+namespace VoiceChangerApp.Utils
 {
     public abstract class ScalogramCreationSettings
     {
-        public float CyclesCount { get; set; }
+        public WaveletTransformSettings WaveletTransformSettings { get; set; }
     }
 }

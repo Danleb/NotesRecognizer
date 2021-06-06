@@ -9,6 +9,10 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="SpectrumCreator\Kernels\FastFourierTransformKernel.cl" />
     <None Remove="SpectrumCreator\SpectrumKernel.cl" />

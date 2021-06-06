@@ -1,17 +1,25 @@
-﻿namespace VoiceChanger.NoteRecognizer
+﻿using System;
+
+namespace VoiceChanger.NoteRecognizer
 {
-    public class FrequencyData
+    public class FrequencyData : IComparable<FrequencyData>
     {
-        public FrequencyData(float frequency, int guitarStringNumber, int toneNumber)
+        public FrequencyData()
+        {
+
+        }
+
+        public FrequencyData(float frequency)
         {
             Frequency = frequency;
-            GuitarStringNumber = guitarStringNumber;
-            ToneNumber = toneNumber;
         }
 
         public float Frequency { get; set; }
-        public int GuitarStringNumber { get; set; }
-        public int ToneNumber { get; set; }
+
+        public int CompareTo(FrequencyData other)
+        {
+            return Frequency.CompareTo(other.Frequency);
+        }
 
         public static implicit operator float(FrequencyData data)
         {

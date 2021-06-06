@@ -26,7 +26,7 @@
             <ComboBox Margin="5" />-->
 
             <StackPanel Orientation="Horizontal">
-                <Label Content="Signal angular frequency, Hz:"/>
+                <Label Content="Signal frequency, Hz:"/>
                 <TextBox Style="{StaticResource TextBoxValidating}">
                     <TextBox.Text>
                         <Binding Path="SignalFrequency" UpdateSourceTrigger="PropertyChanged">
@@ -73,7 +73,7 @@
                     <GridView>
                         <GridViewColumn DisplayMemberBinding="{Binding Path=TimeStart}">#</GridViewColumn>
                         <GridViewColumn DisplayMemberBinding="{Binding Path=Frequency}">Frequency</GridViewColumn>
-                        <GridViewColumn DisplayMemberBinding="{Binding Path=Duration}">Duration</GridViewColumn>                        
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Duration}">Duration</GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

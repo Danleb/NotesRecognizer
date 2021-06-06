@@ -4,6 +4,7 @@
     {
         Guitar,
         Linear,
-        Harmonics
+        Harmonics,
+        GuitarHits
     }
 }

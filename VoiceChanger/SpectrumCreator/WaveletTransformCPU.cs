@@ -2,6 +2,7 @@
 using System;
 using System.Numerics;
 using VoiceChanger.FormatParser;
+using VoiceChanger.Utils;
 
 namespace VoiceChanger.SpectrumCreator
 {
@@ -16,10 +17,11 @@ namespace VoiceChanger.SpectrumCreator
             AudioContainer = audioContainer;
         }
 
-        public static float[] CreateScalogram(float frequency, Complex[] signalFT, int sampleRate, float cyclesCount, double sigma)
+        public static float[] CreateScalogram(float frequency, Complex[] signalFT, int sampleRate, WaveletTransformSettings settings)
         {
             var pointsCount = signalFT.Length;
-            var wavelet = GenerateMorletWavelet(frequency, sampleRate, cyclesCount, pointsCount, sigma);
+            var wavelet = settings.CreateWavelet(frequency, sampleRate, pointsCount);
+
             var kernelFFT = new FastFourierTransformCPU(wavelet).CreateTransformZeroPadded();
 
             var pointwiseMultiplication = new Complex[pointsCount];
@@ -44,11 +46,11 @@ namespace VoiceChanger.SpectrumCreator
             return amplitudes;
         }
 
-        public float[] CreateScalogram(float sinusoidFrequency, float cycles)
+        public float[] CreateScalogram(float sinusoidFrequency, WaveletTransformSettings settings)
         {
             var signalFFT = new FastFourierTransformCPU(AudioContainer.Samples).CreateTransformZeroPadded();
             var sigma = 6;
-            return CreateScalogram(sinusoidFrequency, signalFFT, AudioContainer.SampleRate, cycles, sigma);
+            return CreateScalogram(sinusoidFrequency, signalFFT, AudioContainer.SampleRate, settings);
         }
 
         public static Complex[] GenerateMorletWavelet(float sinusoidFrequency, int sampleRate, float cycles, int pointsCount, double sigma)

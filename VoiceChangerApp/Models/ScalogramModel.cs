@@ -52,6 +52,7 @@ namespace VoiceChangerApp.Models
                 case LinearScalogramCreationSettings linearSettings: CreateScalogramLinearImpl(linearSettings); break;
                 case GuitarScalogramCreationSettings guitarSettings: CreateScalogramGuitarImpl(guitarSettings); break;
                 case HarmonicsScalogramCreationSettings harmonicsSettings: CreateScalogramHarmonics(harmonicsSettings); break;
+                case GuitarHitsScalogramCreationSettings guitarHitsSettings: CreateScalogramGuitarHitsImpl(guitarHitsSettings); break;
                 default: throw new NotImplementedException($"Not recognized scalogram creation type: {settings.GetType()}");
             }
         }
@@ -60,18 +61,19 @@ namespace VoiceChangerApp.Models
         {
             try
             {
-                var frequencies = new List<float>();
+                var frequencies = new List<FrequencyData>();
                 for (var frequency = settings.FrequencyFrom; frequency <= settings.FrequencyTo; frequency += settings.FrequencyStep)
                 {
-                    frequencies.Add(frequency);
+                    frequencies.Add(new(frequency));
                 }
 
                 CreateScalogramByFrequencies(frequencies, settings);
             }
             catch (Exception e)
             {
-                ScalogramContainer = null;
                 _errorModel.RaiseError(e);
+                ScalogramContainer = null;
+                OnScalogramCalculationState.OnNext(CalculationState.ErrorHappened);
             }
         }
 
@@ -79,13 +81,14 @@ namespace VoiceChangerApp.Models
         {
             try
             {
-                //var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
-                var frequencies = GuitarTuningNotesCreator.GetStringFrequenciesRange(6, settings.TonesCount);
+                var frequencies = GuitarTuningNotesCreator.GetStringsFrequencies(settings.TonesCount);
                 CreateScalogramByFrequencies(frequencies, settings);
             }
             catch (Exception e)
             {
                 _errorModel.RaiseError(e);
+                ScalogramContainer = null;
+                OnScalogramCalculationState.OnNext(CalculationState.ErrorHappened);
             }
         }
 
@@ -99,10 +102,12 @@ namespace VoiceChangerApp.Models
             catch (Exception e)
             {
                 _errorModel.RaiseError(e);
+                ScalogramContainer = null;
+                OnScalogramCalculationState.OnNext(CalculationState.ErrorHappened);
             }
         }
 
-        private void CreateScalogramByFrequencies(List<float> frequencies, ScalogramCreationSettings settings)
+        private void CreateScalogramByFrequencies(List<FrequencyData> frequencies, ScalogramCreationSettings settings)
         {
             try
             {
@@ -115,20 +120,43 @@ namespace VoiceChangerApp.Models
                 _logger.LogInformation("Started creating scalogram.");
                 OnScalogramCalculationState.OnNext(CalculationState.Calculating);
 
-                if (ScalogramCreator?.AudioContainer != _soundDataModel.AudioContainer)
-                {
-                    //todo change data passing
-                    var ft = new FastFourierTransformCPU(_soundDataModel.AudioContainer.Samples);
-                    ScalogramCreator = new ScalogramCreator(_soundDataModel.AudioContainer, ft);
-                    _logger.LogInformation("Creating new ScalogramCreator");
-                }
-                else
-                {
-                    _logger.LogInformation("Using cached ScalogramCreator");
-                }
+                //if (ScalogramCreator?.AudioContainer != _soundDataModel.AudioContainer)
+                //{
+                //todo change data passing
+                var ft = new FastFourierTransformCPU(_soundDataModel.AudioContainer.Samples);
+                var scalogramCreator = new SingleWaveletScalogramCreator(_soundDataModel.AudioContainer, ft);
+                ScalogramCreator = scalogramCreator;
+                _logger.LogInformation("Creating new ScalogramCreator");
+                //}
+                //else
+                //{
+                //    _logger.LogInformation("Using cached ScalogramCreator");
+                //}
 
                 frequencies.Sort();
-                ScalogramContainer = ScalogramCreator.CreateScalogram(frequencies, settings.CyclesCount);
+
+                _logger.LogInformation($"Frequencies count: {frequencies.Count}");
+                if (frequencies.Count < 10)
+                {
+                    frequencies.ForEach(v => _logger.LogInformation(v.ToString()));
+                }
+
+                ScalogramContainer = scalogramCreator.CreateScalogram(frequencies, settings.WaveletTransformSettings);
+
+
+                //
+                //var scalogramContainer = ScalogramCreator.CreateScalogram(frequencies, settings.WaveletTransformSettings);
+                //var transformedSignalFft = new FastFourierTransformCPU(scalogramContainer.Scalograms.Single().Values);
+                //var transformedSignalScalogramCreator = new ScalogramCreator(_soundDataModel.AudioContainer, transformedSignalFft);
+                //var settings2 = new MorletWaveletSettings
+                //{
+                //    CyclesCount = 0.1f
+                //};
+                //var transformedSignalScalogramContainer = transformedSignalScalogramCreator.CreateScalogram(frequencies, settings2);
+                //ScalogramContainer = transformedSignalScalogramContainer;
+                //
+
+
 
                 //ScalogramContainer = new ScalogramContainer(10, 2);                
                 //var range = Enumerable.Range(1, 10).Select(v => v / 10.0f).ToArray();
@@ -141,8 +169,44 @@ namespace VoiceChangerApp.Models
             }
             catch (Exception e)
             {
-                ScalogramContainer = null;
-                OnScalogramCalculationState.OnNext(CalculationState.ErrorHappened);
+                HandleScalogramCreationError(e);
+            }
+        }
+
+        private void HandleScalogramCreationError(Exception e)
+        {
+            _errorModel.RaiseError(e);
+            ScalogramContainer = null;
+            OnScalogramCalculationState.OnNext(CalculationState.ErrorHappened);
+        }
+
+        private void CreateScalogramGuitarHitsImpl(GuitarHitsScalogramCreationSettings guitarHitsSettings)
+        {
+            try
+            {
+                if (_soundDataModel.AudioContainer == null)
+                {
+                    _logger.LogWarning("Current AudioContainer is null.");
+                    return;
+                }
+
+                _logger.LogInformation("Started creating scalogram.");
+                OnScalogramCalculationState.OnNext(CalculationState.Calculating);
+
+
+                var guitarHitsScalogramCreator = new GuitarHitsScalogramCreator(_soundDataModel.AudioContainer);
+                ScalogramCreator = guitarHitsScalogramCreator;
+
+                var frequenciesToAnalyze = GuitarTuningNotesCreator.GetStringsFrequencies(5);
+                ScalogramContainer = guitarHitsScalogramCreator.CreateScalogram(frequenciesToAnalyze, guitarHitsSettings.GuitarHitsScalogramSettings, true);
+
+                _logger.LogInformation("Finished calculating scalogram.");
+                OnScalogramCreated.OnNext(ScalogramContainer);
+                OnScalogramCalculationState.OnNext(CalculationState.Finished);
+            }
+            catch (Exception e)
+            {
+                HandleScalogramCreationError(e);
             }
         }
     }

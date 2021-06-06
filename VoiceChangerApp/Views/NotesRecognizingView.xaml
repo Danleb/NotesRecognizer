@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:VoiceChangerApp.Views"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
+             prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type vm:NotesRecognizingViewModel}, IsDesignTimeCreatable=True}">
@@ -19,8 +20,8 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <Button Content="Recognize" Margin="5" HorizontalAlignment="Left" Padding="10,2"/>
-            <TextBox Text="" Margin="5" Height="200"/>
+            <Button Content="Recognize" Margin="5" HorizontalAlignment="Left" Padding="10,2" Command="{Binding Recognize}"/>
+            <TextBox FontFamily="Courier New" FontSize="20" Text="{Binding Tablature}" Margin="5" Height="200" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" IsReadOnly="True"/>
         </StackPanel>
     </Grid>
 </UserControl>

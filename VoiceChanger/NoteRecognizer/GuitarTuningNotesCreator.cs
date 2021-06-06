@@ -30,11 +30,12 @@ namespace VoiceChanger.NoteRecognizer
             return (float)frequency;
         }
 
-        public static float GetStringFrequency(int stringNumber, int toneShift)
+        public static FrequencyData GetStringFrequency(int stringNumber, int toneShift)
         {
             var tone = OpenStringsBaseTones[stringNumber] + toneShift;
             var frequency = GetNoteFrequency(BaseFrequency, tone);
-            return frequency;
+            var data = new GuitarFrequencyData(frequency, stringNumber, toneShift);
+            return data;
         }
 
         public static List<float> GetStringFrequenciesRange(int stringNumber, int tonesCount)
@@ -50,10 +51,16 @@ namespace VoiceChanger.NoteRecognizer
             return list;
         }
 
-        public static List<float> GetStringsFrequencies(int tonesCount)
+        public static List<FrequencyData> GetStringsFrequencies(int tonesCount, List<int> stringNumbers = null)
         {
-            var set = new SortedSet<float>();
-            foreach (var stringNumber in OpenStringsBaseTones.Keys)
+            if (stringNumbers == null)
+            {
+                stringNumbers = OpenStringsBaseTones.Keys.ToList();
+            }
+
+            var set = new SortedSet<FrequencyData>();
+
+            foreach (var stringNumber in stringNumbers)
             {
                 for (var i = 0; i < tonesCount; i++)
                 {
@@ -65,14 +72,30 @@ namespace VoiceChanger.NoteRecognizer
             return list;
         }
 
-        public static List<float> GetStringHarmonics(int stringNumber, int toneIndex, int harmonicsCount)
+        public static List<GuitarFrequencyData> GetStringsFrequencyDatas(int tonesCount, List<int> stringNumbers = null)
         {
-            var frequencies = new List<float>();
+            var datas = new List<GuitarFrequencyData>();
+            foreach (var stringNumber in stringNumbers)
+            {
+                for (var toneIndex = 0; toneIndex < tonesCount; toneIndex++)
+                {
+                    var frequency = GetStringFrequency(stringNumber, toneIndex);
+                    var data = new GuitarFrequencyData(frequency, stringNumber, toneIndex);
+                    datas.Add(data);
+                }
+            }
+            var list = datas.ToList();
+            return list;
+        }
+
+        public static List<FrequencyData> GetStringHarmonics(int stringNumber, int toneIndex, int harmonicsCount)
+        {
+            var frequencies = new List<FrequencyData>();
             var baseFrequency = GetStringFrequency(stringNumber, toneIndex);
             for (int i = 0; i < harmonicsCount; i++)
             {
                 var frequency = baseFrequency * MathF.Pow(2, i);
-                frequencies.Add(frequency);
+                frequencies.Add(new(frequency));
             }
             return frequencies;
         }

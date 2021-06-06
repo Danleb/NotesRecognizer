@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Reactive.Linq;
@@ -14,13 +13,26 @@ namespace VoiceChangerApp.ViewModels
     {
         public NotesRecognizingViewModel() { }
 
-        public NotesRecognizingViewModel(SoundDataModel soundDataModel)
+        public NotesRecognizingViewModel(SoundDataModel soundDataModel, NotesRecognizingModel notesRecognizingModel)
         {
             SoundDataModel = soundDataModel;
-            Recognize = new DelegateCommand(RecognizeImpl);
+            NotesRecognizingModel = notesRecognizingModel;
+
+            Recognize = new DelegateCommand(() =>
+            {
+                notesRecognizingModel.CreateNoteContainer.OnNext(SoundDataModel.AudioContainer);
+            });
+            NotesRecognizingModel.OnNoteContainer
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(OnNoteContainerCreated);
+            NotesRecognizingModel
+                .OnNoteContainerCalculationState
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(OnNoteContainerCalculationState);
         }
 
         public SoundDataModel SoundDataModel { get; }
+        public NotesRecognizingModel NotesRecognizingModel { get; }
 
         #region Properties
 
@@ -31,6 +43,13 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _noteContainer, value); }
         }
 
+        private string _tablature;
+        public string Tablature
+        {
+            get { return _tablature; }
+            set { SetProperty(ref _tablature, value); }
+        }
+
         #endregion
 
         #region Commands
@@ -39,7 +58,12 @@ namespace VoiceChangerApp.ViewModels
 
         #endregion
 
-        private void RecognizeImpl()
+        private void OnNoteContainerCreated(NoteContainer noteContainer)
+        {
+            Tablature = new NotesToTablatureConverter(noteContainer).CreateTablature(-1);
+        }
+
+        private void OnNoteContainerCalculationState(CalculationState state)
         {
 
         }

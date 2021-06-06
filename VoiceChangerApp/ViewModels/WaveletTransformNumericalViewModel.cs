@@ -2,8 +2,11 @@
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
+using System.Linq;
+using VoiceChanger.NoteRecognizer;
 using VoiceChanger.Scalogram;
 using VoiceChanger.SpectrumCreator;
+using VoiceChanger.Utils;
 using VoiceChangerApp.Models;
 
 namespace VoiceChangerApp.ViewModels
@@ -19,20 +22,41 @@ namespace VoiceChangerApp.ViewModels
             GenerateAnalysis = new DelegateCommand(() =>
             {
                 var fft = new FastFourierTransformCPU(SoundDataModel.AudioContainer.Samples);
-                var scalogramCreator = new ScalogramCreator(SoundDataModel.AudioContainer, fft);
-                var frequencies = new List<float>
+                var scalogramCreator = new SingleWaveletScalogramCreator(SoundDataModel.AudioContainer, fft);
+                var frequencies = new List<FrequencyData>
                 {
-                    FrequencyToAnalyze
+                    new FrequencyData(FrequencyToAnalyze)
                 };
-                var scalogramContainer = scalogramCreator.CreateScalogram(frequencies, CyclesCount);
-
-                var list = new List<DataPoint>();
-                var n = 1;
-                foreach (var v in scalogramContainer.ScalogramValues)
+                var settings = new GuitarWaveletSettings
                 {
-                    list.Add(new DataPoint(n++, v));
-                }
-                Points = list;
+                    Duration = Duration
+                };
+                //var settings = new MorletWaveletSettings
+                //{
+                //    CyclesCount = CyclesCount
+                //};
+                var scalogramContainer = scalogramCreator.CreateScalogram(frequencies, settings, false);
+
+                var transformedSignalFft = new FastFourierTransformCPU(scalogramContainer.Scalograms.Single().Values);
+                var transformedSignalScalogramCreator = new SingleWaveletScalogramCreator(SoundDataModel.AudioContainer, transformedSignalFft);
+                var settings2 = new MorletWaveletSettings
+                {
+                    CyclesCount = CyclesCount
+                    //CyclesCount = 0.1f
+                };
+                var transformedSignalScalogramContainer = transformedSignalScalogramCreator.CreateScalogram(frequencies, settings2, false);
+
+                //var transformedSignal3 = new FastFourierTransformCPU(transformedSignalScalogramContainer.Scalograms.Single().Values);
+                //var scalogramCreator3 = new SingleWaveletScalogramCreator(SoundDataModel.AudioContainer, transformedSignal3);
+                //var settings3 = new PeaksWaveletSettings
+                //{
+                //    Coef = CyclesCount
+                //};
+                //var container3 = scalogramCreator3.CreateScalogram(frequencies, settings3, false);
+
+                //ShowPlot(container3);
+                ShowPlot(transformedSignalScalogramContainer);
+                //ShowPlot(scalogramContainer);
             });
 
             AnalyzeNextFrequency = new DelegateCommand(() =>
@@ -47,8 +71,21 @@ namespace VoiceChangerApp.ViewModels
                 GenerateAnalysis.Execute();
             });
 
-            FrequencyToAnalyze = 1;
-            CyclesCount = 3;
+            FrequencyToAnalyze = 82.41f;
+            CyclesCount = 0.1f;
+            Duration = 0.05f;
+        }
+
+        private void ShowPlot(ScalogramContainer scalogramContainer)
+        {
+            var list = new List<DataPoint>();
+            var n = 1;
+            for (int i = 0; i < scalogramContainer.Scalograms.Single().Values.Length; i++)
+            {
+                float v = scalogramContainer.Scalograms.Single().Values[i];
+                list.Add(new DataPoint(n++, v));
+            }
+            Points = list;
         }
 
         #region Commands
@@ -96,6 +133,20 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _cyclesCount; }
             set { SetProperty(ref _cyclesCount, value); }
+        }
+
+        private WaveletType _waveletType;
+        public WaveletType WaveletType
+        {
+            get { return _waveletType; }
+            set { SetProperty(ref _waveletType, value); }
+        }
+
+        private float _duration;
+        public float Duration
+        {
+            get { return _duration; }
+            set { SetProperty(ref _duration, value); }
         }
 
         #endregion

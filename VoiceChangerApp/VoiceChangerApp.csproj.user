@@ -7,6 +7,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\AppSettingsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\DataSourceViews\DataSourceView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -54,6 +57,15 @@
     <Resource Update="Styles\Styles.xaml">
       <SubType>Designer</SubType>
     </Resource>
+    <Resource Update="Styles\DarkTheme.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Styles\LightTheme.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Page Update="Views\AppSettingsView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\DataSourceViews\RecordingSoundView.xaml">
       <SubType>Designer</SubType>
     </Page>

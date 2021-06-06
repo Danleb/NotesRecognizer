@@ -33,7 +33,15 @@ namespace VoiceChangerApp.Models
             var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             SetCurrentWorkDirectoryImpl(_userPreferencesModel.WorkDirectory ?? currentPath);
 
-            LoadDefaultData();
+            var lastOpenedFile = _userPreferencesModel.LastOpenedFile;
+            if (string.IsNullOrWhiteSpace(lastOpenedFile))
+            {
+                LoadDefaultData();
+            }
+            else
+            {
+                LoadFile.OnNext(lastOpenedFile);
+            }
         }
 
         #region Commands
@@ -122,6 +130,7 @@ namespace VoiceChangerApp.Models
                 SoundSource = SoundSource.File;
                 OnSampleLoaded.OnNext(true);
                 OnSoundSourceChanged.OnNext(SoundSource);
+                _userPreferencesModel.SetLastOpenedFile.OnNext(path);
             }
             catch (Exception e)
             {

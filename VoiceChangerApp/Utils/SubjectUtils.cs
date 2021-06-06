@@ -15,5 +15,10 @@ namespace VoiceChangerApp.Utils
         {
             subject.Subscribe(v => Task.Run(() => action(v)));
         }
+
+        public static void SubscribeAsync<T>(this BehaviorSubject<T> subject, Action<T> action)
+        {
+            subject.Subscribe(v => Task.Run(() => action(v)));
+        }
     }
 }

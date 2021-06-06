@@ -1,11 +1,13 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Threading;
 using VoiceChanger.Scalogram;
+using VoiceChanger.Utils;
 using VoiceChangerApp.Models;
 using VoiceChangerApp.Utils;
 
@@ -27,42 +29,67 @@ namespace VoiceChangerApp.ViewModels
 
             CreateScalogram = new DelegateCommand(() =>
             {
+                ScalogramCreationSettings settings = null;
+
                 switch (_scalogramType)
                 {
                     case ScalogramType.Guitar:
                         {
-                            var settings = new GuitarScalogramCreationSettings
+                            settings = new GuitarScalogramCreationSettings
                             {
-                                TonesCount = GuitarTonesCount,
-                                CyclesCount = CyclesCount
+                                TonesCount = GuitarTonesCount
                             };
-                            ScalogramModel.CreateScalogramGuitar.OnNext(settings);
                             break;
                         }
                     case ScalogramType.Linear:
                         {
-                            var settings = new LinearScalogramCreationSettings
+                            settings = new LinearScalogramCreationSettings
                             {
                                 FrequencyFrom = FrequencyFrom,
                                 FrequencyTo = FrequencyTo,
-                                FrequencyStep = FrequencyStep,
-                                CyclesCount = CyclesCount
+                                FrequencyStep = FrequencyStep
                             };
-                            ScalogramModel.CreateScalogramLinear.OnNext(settings);
                             break;
                         }
                     case ScalogramType.Harmonics:
                         {
-                            var settings = new HarmonicsScalogramCreationSettings
+                            settings = new HarmonicsScalogramCreationSettings
                             {
-                                BaseFrequency = BaseFrequency,
-                                HarmomicsCount = HarmonicsCount,
-                                CyclesCount = CyclesCount
+                                ByStringNumber = true,
+                                StringNumber = HarmonicsStringNumber,
+                                ToneIndex = HarmonicsToneIndex,
+                                HarmomicsCount = HarmonicsCount
                             };
-                            ScalogramModel.CreateScalogram.OnNext(settings);
                             break;
                         }
+                    case ScalogramType.GuitarHits:
+                        {
+                            settings = new GuitarHitsScalogramCreationSettings
+                            {
+                                GuitarHitsScalogramSettings = new GuitarHitsScalogramSettings
+                                {
+                                    CyclesCount = CyclesCount,
+                                    Duration = Duration
+                                }
+                            };
+                            break;
+                        }
+                    default:
+                        throw new NotImplementedException();
                 }
+
+                settings.WaveletTransformSettings = new GuitarWaveletSettings
+                {
+                    Coefficient = Coefficient,
+                    Bias = Bias,
+                    Duration = Duration
+                };
+                //settings.WaveletTransformSettings = new MorletWaveletSettings
+                //{
+                //    CyclesCount = CyclesCount
+                //};
+
+                ScalogramModel.CreateScalogram.OnNext(settings);
             });
 
             ScalogramModel.OnScalogramCreated
@@ -72,14 +99,22 @@ namespace VoiceChangerApp.ViewModels
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(OnScalogramCalculationStateChanged);
 
-            CyclesCount = 2;
+            CyclesCount = 0.2f;
 
             ScalogramType = ScalogramType.Linear;
-            FrequencyFrom = 100;
-            FrequencyTo = 200;
+            FrequencyFrom = 82.41f;
+            FrequencyTo = 82.41f;
             FrequencyStep = 1;
 
             GuitarTonesCount = 2;
+
+            HarmonicsStringNumber = 6;
+            HarmonicsToneIndex = 0;
+            HarmonicsCount = 4;
+
+            Coefficient = 2f;
+            Bias = 0.1f;
+            Duration = 0.05f;
         }
 
         public ScalogramModel ScalogramModel { get; }
@@ -93,10 +128,16 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _scalogramContainer, value); }
         }
 
-        public List<ScalogramType> AvailableScalogramTypes { get; } = new List<ScalogramType> {
+        public ImmutableArray<ScalogramType> AvailableScalogramTypes { get; } = ImmutableArray.Create(
             ScalogramType.Guitar,
-            ScalogramType.Linear
-        };
+            ScalogramType.Linear,
+            ScalogramType.Harmonics,
+            ScalogramType.GuitarHits
+        );
+
+        public ImmutableArray<int> StringNumbers { get; } = ImmutableArray.Create(1, 2, 3, 4, 5, 6);
+
+        public ImmutableArray<int> StringTones { get; } = ImmutableArray.Create(Enumerable.Range(0, 13).ToArray());
 
         private ScalogramType _scalogramType;
         public ScalogramType ScalogramType
@@ -106,7 +147,8 @@ namespace VoiceChangerApp.ViewModels
             {
                 SetProperty(ref _scalogramType, value);
                 GuitarSettingsVisible = _scalogramType == ScalogramType.Guitar;
-                LinearSettingsVisible = _scalogramType == ScalogramType.Linear;
+                LinearSettingsVisible = _scalogramType == ScalogramType.Linear || _scalogramType == ScalogramType.GuitarHits;
+                HarmonicsSettingsVisible = _scalogramType == ScalogramType.Harmonics;
             }
         }
 
@@ -152,6 +194,13 @@ namespace VoiceChangerApp.ViewModels
             set { SetProperty(ref _linearSettingsVisible, value); }
         }
 
+        private bool _harmonicsSettingsVisible;
+        public bool HarmonicsSettingsVisible
+        {
+            get { return _harmonicsSettingsVisible; }
+            set { SetProperty(ref _harmonicsSettingsVisible, value); }
+        }
+
         private double _secondsPassed;
         public double SecondsPassed
 
@@ -179,6 +228,48 @@ namespace VoiceChangerApp.ViewModels
         {
             get { return _cyclesCount; }
             set { SetProperty(ref _cyclesCount, value); }
+        }
+
+        private int _harmonicsStringNumber;
+        public int HarmonicsStringNumber
+        {
+            get { return _harmonicsStringNumber; }
+            set { SetProperty(ref _harmonicsStringNumber, value); }
+        }
+
+        private int _harmonicsToneIndex;
+        public int HarmonicsToneIndex
+        {
+            get { return _harmonicsToneIndex; }
+            set { SetProperty(ref _harmonicsToneIndex, value); }
+        }
+
+        private int _harmonicsCount;
+        public int HarmonicsCount
+        {
+            get { return _harmonicsCount; }
+            set { SetProperty(ref _harmonicsCount, value); }
+        }
+
+        private float _coeff;
+        public float Coefficient
+        {
+            get { return _coeff; }
+            set { SetProperty(ref _coeff, value); }
+        }
+
+        private float _bias;
+        public float Bias
+        {
+            get { return _bias; }
+            set { SetProperty(ref _bias, value); }
+        }
+
+        private float _duration;
+        public float Duration
+        {
+            get { return _duration; }
+            set { SetProperty(ref _duration, value); }
         }
 
         #endregion
@@ -215,6 +306,7 @@ namespace VoiceChangerApp.ViewModels
                 case CalculationState.None:
                     {
                         _dispatcherTimer.Stop();
+                        UpdateProgressPercents();
                         break;
                     }
                 default: throw new NotImplementedException();
@@ -225,6 +317,11 @@ namespace VoiceChangerApp.ViewModels
         {
             var delta = DateTime.Now - _startTime;
             SecondsPassed = delta.TotalSeconds;
+            UpdateProgressPercents();
+        }
+
+        private void UpdateProgressPercents()
+        {
             ProgressPercents = ScalogramModel.ScalogramCreator?.ProgressRatio * 100 ?? 0;
         }
     }

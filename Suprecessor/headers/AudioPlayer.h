@@ -1,3 +1,5 @@
+#include <Audioclient.h>
+#include <mmdeviceapi.h>
 #include <stdint.h>
 #include <thread>
 #include <Windows.h>
@@ -33,8 +35,11 @@ namespace suprecessor
 	private:
 		AudioContainer m_audioContainer;
 		int32_t m_currentSamplePosition = 0;
-		std::thread m_audioThread;
+		std::thread m_renderThread;
 		IMMDeviceEnumerator* m_mmDeviceEnumerator = NULL;
+		IMMDevice* m_mmDevice = NULL;
+		IAudioClient* m_audioClient = NULL;
+		IAudioRenderClient* m_audioRenderClient = NULL;
 
 		void PlayFromCurrentPosition();
 		void CheckSuccess(HRESULT result, const char* errorMessage);

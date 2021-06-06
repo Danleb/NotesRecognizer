@@ -1,11 +1,10 @@
 ﻿<UserControl x:Class="VoiceChangerApp.Views.DataSourceViews.WaveletGenerationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VoiceChangerApp.Views.DataSourceViews"
-             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:VoiceChangerApp.ViewModels"
              xmlns:vr="clr-namespace:VoiceChangerApp.Views.ValidationRules"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" 
@@ -20,34 +19,16 @@
     </UserControl.Resources>
     <Grid Background="White">
         <StackPanel Orientation="Vertical">
-            <Label Content="Generate Morlet wavelet"/>            
-            
+            <Label Content="Generate wavelet"/>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Wavelet type:" Margin="5"/>
+                <ComboBox SelectedItem="{Binding WaveletType}" ItemsSource="{Binding WaveletTypes}" Margin="5" Width="100"/>
+            </StackPanel>
+
             <Label Content="Wave frequency:"/>
             <TextBox Style="{StaticResource TextBoxValidating}">
                 <TextBox.Text>
                     <Binding Path="WaveFrequency" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:PositiveNumberValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-            
-            <Label Content="Cycles count:"/>
-            <TextBox Style="{StaticResource TextBoxValidating}">
-                <TextBox.Text>
-                    <Binding Path="CyclesCount" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:PositiveNumberValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-            
-            <Label Content="Sigma:"/>
-            <TextBox Style="{StaticResource TextBoxValidating}">
-                <TextBox.Text>
-                    <Binding Path="SigmaValue" UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
                             <vr:PositiveNumberValidationRule/>
                         </Binding.ValidationRules>
@@ -70,6 +51,28 @@
             <TextBox Style="{StaticResource TextBoxValidating}">
                 <TextBox.Text>
                     <Binding Path="SampleRate" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <vr:PositiveNumberValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="Cycles count:"/>
+            <TextBox Style="{StaticResource TextBoxValidating}">
+                <TextBox.Text>
+                    <Binding Path="CyclesCount" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <vr:PositiveNumberValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="Sigma:"/>
+            <TextBox Style="{StaticResource TextBoxValidating}">
+                <TextBox.Text>
+                    <Binding Path="SigmaValue" UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
                             <vr:PositiveNumberValidationRule/>
                         </Binding.ValidationRules>

@@ -37,10 +37,26 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
+                    <Label Content="Wavelet type" VerticalAlignment="Center"/>
+                    <ComboBox Margin="5" Width="80"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal">
                     <Label Content="Cycles:" />
                     <TextBox Margin="5" Style="{StaticResource TextBoxValidating}">
                         <TextBox.Text>
                             <Binding Path="CyclesCount" UpdateSourceTrigger="LostFocus">
+                                <Binding.ValidationRules>
+                                    <vr:PositiveNumberValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
+                    <Label Content="Duration:" />
+                    <TextBox Margin="5" Style="{StaticResource TextBoxValidating}">
+                        <TextBox.Text>
+                            <Binding Path="Duration" UpdateSourceTrigger="LostFocus">
                                 <Binding.ValidationRules>
                                     <vr:PositiveNumberValidationRule/>
                                 </Binding.ValidationRules>

@@ -3,6 +3,7 @@ using NLog.Extensions.Logging;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Unity;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -23,6 +24,18 @@ namespace VoiceChangerApp
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool AllocConsole();
+
+        public ResourceDictionary ThemeDictionary
+        {
+            // You could probably get it via its name with some query logic as well.
+            get { return Resources.MergedDictionaries[0]; }
+        }
+
+        public void ChangeTheme(Uri uri)
+        {
+            ThemeDictionary.MergedDictionaries.Clear();
+            ThemeDictionary.MergedDictionaries.Add(new ResourceDictionary() { Source = uri });
+        }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
@@ -45,6 +58,8 @@ namespace VoiceChangerApp
             containerRegistry.Register<EditorWindowViewModel>();
             containerRegistry.Register<RawSoundViewModel>();
             containerRegistry.Register<WaveletGenerationViewModel>();
+            containerRegistry.Register<AudioPlayerViewModel>();
+            containerRegistry.Register<NotesRecognizingViewModel>();
         }
 
         private static void RegisterModel(IContainerRegistry containerRegistry)
@@ -54,6 +69,7 @@ namespace VoiceChangerApp
             containerRegistry.RegisterSingleton<SoundDataModel>();
             containerRegistry.RegisterSingleton<UserPreferencesModel>();
             containerRegistry.RegisterSingleton<ScalogramModel>();
+            containerRegistry.RegisterSingleton<AudioPlayerModel>();
         }
 
         private static void RegisterGenericLogger(IContainerRegistry containerRegistry)
